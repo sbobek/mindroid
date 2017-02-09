@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Mindroid</string>
+    <string name="title_activity_robot_control">RobotControl</string>
+</resources>

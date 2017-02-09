@@ -33,10 +33,6 @@ public class Motor {
     public RobotMotorTask stop(){
         RobotMotorTask rmt = new RobotMotorTask(this);
         rmt.setPowerSetPoint((byte)0);
-        rmt.enableRegulationMode();
-        rmt.enableMotorOnMode();
-        rmt.enableSpeedRegulation();
-        rmt.setRunStateRunning();
         return rmt;
     }
 }

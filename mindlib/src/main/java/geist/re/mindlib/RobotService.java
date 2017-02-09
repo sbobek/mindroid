@@ -34,7 +34,8 @@ public class RobotService extends Service {
     public static final int STATE_NONE = 0;
     public static final int STATE_CONNECTING = 1;
     public static final int STATE_CONNECTED = 2;
-    public static final int CONNECTION_LOST = 3;
+    public static final int STATE_WAIT = 3;
+    public static final int STATE_CONNECTION_LOST = 4;
     private static final String TAG = "RobotService";
 
 
@@ -72,12 +73,12 @@ public class RobotService extends Service {
         addToQueueTask(motorTask);
     }
 
-    public void synchTwoMotorTask(RobotMotorTask motorTask1, RobotMotorTask motorTask2){
+    public void executeSyncTwoMotorTask(RobotMotorTask motorTask1, RobotMotorTask motorTask2){
         RobotTask finalTask =  motorTask1.syncWith(motorTask2);
         addToQueueTask(finalTask);
     }
 
-    public void synchThreeMotorTask(RobotMotorTask motorTask1, RobotMotorTask motorTask2, RobotMotorTask motorTask3){
+    public void executeSyncThreeMotorTask(RobotMotorTask motorTask1, RobotMotorTask motorTask2, RobotMotorTask motorTask3){
         RobotTask finalTask = motorTask1.syncWith(motorTask2).syncWith(motorTask3);
         addToQueueTask(finalTask);
     }
@@ -85,6 +86,14 @@ public class RobotService extends Service {
     public void continueOperation(long time) {
         RobotTask task = new WaitTask(time);
         addToQueueTask(task);
+    }
+
+    synchronized public boolean writeToNXTSocket(byte [] command){
+        if(getState() == STATE_CONNECTED) {
+            mConnectedThread.write(command);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -204,11 +213,12 @@ public class RobotService extends Service {
     }
 
     private void connectionLost() {
-        setState(CONNECTION_LOST);
+        setState(STATE_CONNECTION_LOST);
         Log.d(TAG,"Connection lost...");
     }
 
-    private synchronized void setState(int state) {
+
+    public synchronized void setState(int state) {
         mState = state;
         if(mState == STATE_CONNECTED){
             synchronized (taskExecutor) {
@@ -274,7 +284,7 @@ public class RobotService extends Service {
         }
     }
 
-    private class ConnectedThread extends Thread {
+    public class ConnectedThread extends Thread {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
@@ -327,12 +337,12 @@ public class RobotService extends Service {
         }
     }
 
-    private class TaskExecutorThread extends Thread{
+    protected class TaskExecutorThread extends Thread{
             @Override
             public void run() {
-                while(true){
-                    while(robotTaskQueue.isEmpty() || RobotService.this.getState() != STATE_CONNECTED){
-                        synchronized(this) {
+                while(true) {
+                    while (robotTaskQueue.isEmpty() || RobotService.this.getState() != STATE_CONNECTED) {
+                        synchronized (this) {
                             try {
                                 wait();
                             } catch (InterruptedException e) {
@@ -341,17 +351,9 @@ public class RobotService extends Service {
                         }
                     }
                     RobotTask rt = robotTaskQueue.poll();
-                    if(rt instanceof WaitTask){
-                        try {
-                            sleep(((WaitTask)rt).getDelay());
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }else {
-                        byte[] data = rt.getTaskData();
-                        mConnectedThread.write(data);
-                    }
+                    rt.execute(RobotService.this);
                 }
+
             }
     }
 

@@ -23,8 +23,11 @@ public class RobotControl extends RobotControlActivity {
         if(robot != null){
             robot.connectToRobot(ROBOT_NAME);
             robot.executeMotorTask(robot.motorA.run(80));
-            //robot.continueOperation(2000);
+            robot.continueOperation(2000);
             robot.executeMotorTask(robot.motorA.stop());
+            robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
+            robot.continueOperation(1000);
+            robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());
 
 
         }else{

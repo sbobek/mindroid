@@ -1,5 +1,8 @@
 package geist.re.mindlib.tasks;
 
+import java.nio.ByteBuffer;
+
+import geist.re.mindlib.RobotService;
 import geist.re.mindlib.hardware.Motor;
 
 /**
@@ -41,7 +44,7 @@ public class RobotMotorTask implements RobotTask {
 
 
 
-    byte [] data = {VAL_LENGTH_LSB, VAL_LENGTH_MSB, VAL_DIRECT_CMD, VAL_CMD_TYPE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    byte [] data = {VAL_LENGTH_LSB, VAL_LENGTH_MSB, VAL_DIRECT_CMD, VAL_CMD_TYPE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     public RobotMotorTask(byte [] data){
         this.data = data;
@@ -104,23 +107,18 @@ public class RobotMotorTask implements RobotTask {
         data[IDX_MODE] |= VAL_MODE_ENABLE_REGULATION;
     }
 
-    public void setTachoLimit(long limit){
-        byte[] result = new byte[5];
-        for (int i = 3; i >= 0; i--) {
-            result[i] = (byte)(limit & 0xFF);
-            limit >>= 8;
-        }
+    public void setTachoLimit(int limit){
+        byte[] bytes = ByteBuffer.allocate(4).putInt(limit).array();
 
-        //data[IDX_TACHO_START] = (byte)0xFF;//result[0];
-        //data[IDX_TACHO_START+1] = (byte)0x19;
-        //data[IDX_TACHO_3] = result[2];
-        //data[IDX_TACHO_4] = 0x32;//result[3];
-        //data[IDX_TACHO_4+1] = (byte)0x32;
+        data[IDX_TACHO_START] = bytes[3];
+        data[IDX_TACHO_START+1] = bytes[2];
+        data[IDX_TACHO_START+2] = bytes[1];
+        data[IDX_TACHO_START+3] = bytes[0];
     }
 
 
     @Override
-    public byte[] getTaskData() {
-        return data;
+    public void execute(RobotService rs) {
+        rs.writeToNXTSocket(data);
     }
 }

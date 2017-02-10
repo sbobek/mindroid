@@ -21,6 +21,7 @@ public class RobotControl extends RobotControlActivity {
 
     public void start(View v){
         if(robot != null){
+
             robot.connectToRobot(ROBOT_NAME);
             robot.executeMotorTask(robot.motorA.run(80));
             robot.continueOperation(2000);
@@ -33,6 +34,15 @@ public class RobotControl extends RobotControlActivity {
         }else{
             Toast.makeText(this, "Service not ready...",Toast.LENGTH_LONG);
         }
+    }
+
+    public void voice(View v){
+        //VOICE commands
+    }
+
+    public void stop(View c){
+        //STOP ALL
+
     }
 
     public void quit(View v){

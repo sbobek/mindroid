@@ -13,4 +13,71 @@
     tools:context="geist.re.mindroid.RobotControl"
     tools:showIn="@layout/activity_robot_control">
 
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/ic_media_play"
+        android:id="@+id/start"
+        android:onClick="start"
+        app:backgroundTint="@android:color/holo_purple" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/ic_btn_speak_now"
+        android:layout_below="@+id/start"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="22dp"
+        android:id="@+id/voice"
+        android:onClick="voiceCommands"
+        app:backgroundTint="@color/colorPrimary"
+        app:rippleColor="@color/colorPrimary" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/ic_dialog_alert"
+        android:layout_below="@+id/voice"
+        android:layout_alignRight="@+id/voice"
+        android:layout_alignEnd="@+id/voice"
+        android:layout_marginTop="27dp"
+        android:onClick="stop"
+        android:id="@+id/stop" />
+
+    <TextView
+        android:text="Stop all"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/stop"
+        android:layout_alignLeft="@+id/textView2"
+        android:layout_alignStart="@+id/textView2"
+        android:id="@+id/textView3" />
+
+    <TextView
+        android:text="Start voice commands"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView2"
+        android:layout_above="@+id/stop"
+        android:layout_alignLeft="@+id/textView"
+        android:layout_alignStart="@+id/textView" />
+
+    <TextView
+        android:text="Run program"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="27dp"
+        android:layout_marginStart="27dp"
+        android:id="@+id/textView"
+        android:layout_above="@+id/voice"
+        android:layout_toRightOf="@+id/start"
+        android:layout_toEndOf="@+id/start" />
+
 </RelativeLayout>

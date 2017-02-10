@@ -26,8 +26,11 @@ public class WaitTask implements RobotTask {
         Log.d(TAG, "Connection set to wait by wait task");
         timer.schedule(new TimerTask() {
             public void run() {
-                rs.setState(RobotService.STATE_CONNECTED);
-                Log.d(TAG, "Connection reset to connected by wait task");
+                //Only if nothing happened during sleep, return to connected state
+                if(rs.getState() == RobotService.STATE_WAIT) {
+                    rs.setState(RobotService.STATE_CONNECTED);
+                    Log.d(TAG, "Connection reset to connected by wait task");
+                }
             }
         }, delay);
         //create timer task

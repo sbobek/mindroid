@@ -32,16 +32,6 @@
 
     <include layout="@layout/content_robot_control" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        app:fabSize="mini"
-        app:srcCompat="@android:drawable/ic_media_play"
-        android:id="@+id/start"
-        android:onClick="start"
-        app:layout_anchorGravity="center_vertical|center_horizontal"
-        android:layout_gravity="center_vertical|center_horizontal"
-        app:backgroundTint="@android:color/holo_purple" />
+
 
 </android.support.design.widget.CoordinatorLayout>

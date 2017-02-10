@@ -325,6 +325,7 @@ public class RobotService extends Service {
                 mmOutStream.write(buffer);
             } catch (IOException e) {
                 e.printStackTrace();
+                connectionLost();
             }
         }
 

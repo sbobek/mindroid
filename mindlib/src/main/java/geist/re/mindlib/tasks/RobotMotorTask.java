@@ -121,4 +121,9 @@ public class RobotMotorTask implements RobotTask {
     public void execute(RobotService rs) {
         rs.writeToNXTSocket(data);
     }
+
+    @Override
+    public void dismiss(RobotService rs) {
+        //do nothing, just do not execute
+    }
 }

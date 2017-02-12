@@ -9,21 +9,18 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 
 import geist.re.mindlib.hardware.Motor;
 import geist.re.mindlib.tasks.RobotMotorTask;
 import geist.re.mindlib.tasks.RobotTask;
-import geist.re.mindlib.tasks.WaitTask;
 
 
 /**
@@ -31,18 +28,24 @@ import geist.re.mindlib.tasks.WaitTask;
  */
 
 public class RobotService extends Service {
-    public static final int STATE_NONE = 0;
-    public static final int STATE_CONNECTING = 1;
-    public static final int STATE_CONNECTED = 2;
-    public static final int STATE_WAIT = 3;
-    public static final int STATE_CONNECTION_LOST = 4;
+    public static final int CONN_STATE_DISCONNECTED = 0;
+    public static final int CONN_STATE_CONNECTING = 1;
+    public static final int CONN_STATE_CONNECTED = 2;
+    public static final int CONN_STATE_LOST = 3;
+
+    public static final int OPERTION_STATE_READY = 1;
+    public static final int OPERATION_STATE_BUSY = 2;
+
     private static final String TAG = "RobotService";
+    public static final String ROBOT_STATE_NOTIFICATION = "robotStateNotofication";
+    public static final String CONNECTION_STATE_CODE = "connectionCode";
 
 
     private BluetoothAdapter mAdapter;
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
-    private int mState;
+    private int mConnState;
+    private int mOperState;
 
     private LinkedList<RobotTask> robotTaskQueue = new LinkedList<>();
     TaskExecutorThread taskExecutor = new TaskExecutorThread();
@@ -83,13 +86,9 @@ public class RobotService extends Service {
         addToQueueTask(finalTask);
     }
 
-    public void continueOperation(long time) {
-        RobotTask task = new WaitTask(time);
-        addToQueueTask(task);
-    }
 
     synchronized public boolean writeToNXTSocket(byte [] command){
-        if(getState() == STATE_CONNECTED) {
+        if(getConnectionState() == CONN_STATE_CONNECTED) {
             mConnectedThread.write(command);
             return true;
         }
@@ -102,6 +101,13 @@ public class RobotService extends Service {
         Log.d(TAG, "Robot service created");
     }
 
+    public int getOperationState() {
+        return mOperState;
+    }
+
+    public void setOperationState(int mOperState) {
+        this.mOperState = mOperState;
+    }
 
 
     public class RobotBinder extends Binder {
@@ -157,7 +163,7 @@ public class RobotService extends Service {
     private synchronized void initiateConnection(BluetoothDevice device) {
         Log.d(TAG,"Initiating connection to "+device.getName());
 
-        if (mState == STATE_CONNECTING) {
+        if (mConnState == CONN_STATE_CONNECTING) {
             if (mConnectThread != null) {
                 mConnectThread.cancel();
                 mConnectThread = null;
@@ -171,7 +177,7 @@ public class RobotService extends Service {
 
         mConnectThread = new ConnectThread(device);
         mConnectThread.start();
-        setState(STATE_CONNECTING);
+        setConnectionState(CONN_STATE_CONNECTING);
         Log.d(TAG,"Connecting in progress...");
     }
 
@@ -189,7 +195,7 @@ public class RobotService extends Service {
         mConnectedThread = new ConnectedThread(socket);
         mConnectedThread.start();
 
-        setState(STATE_CONNECTED);
+        setConnectionState(CONN_STATE_CONNECTED);
         Log.d(TAG,"Connection succeeded...");
     }
 
@@ -203,32 +209,37 @@ public class RobotService extends Service {
             mConnectedThread.cancel();
             mConnectedThread = null;
         }
-        setState(STATE_NONE);
+        setConnectionState(CONN_STATE_DISCONNECTED);
         Log.d(TAG,"Connection stopped...");
     }
 
     private void connectionFailed() {
-        setState(STATE_NONE);
+        setConnectionState(CONN_STATE_DISCONNECTED);
         Log.d(TAG,"Connection failed...");
     }
 
     private void connectionLost() {
-        setState(STATE_CONNECTION_LOST);
+        setConnectionState(CONN_STATE_LOST);
+        setConnectionState(CONN_STATE_DISCONNECTED);
         Log.d(TAG,"Connection lost...");
     }
 
 
-    public synchronized void setState(int state) {
-        mState = state;
-        if(mState == STATE_CONNECTED){
+    private synchronized void setConnectionState(int state) {
+        mConnState = state;
+        if(mConnState == CONN_STATE_CONNECTED){
             synchronized (taskExecutor) {
                 taskExecutor.notify();
             }
         }
+        Intent intent = new Intent(ROBOT_STATE_NOTIFICATION);
+        intent.putExtra(CONNECTION_STATE_CODE, mConnState);
+        sendBroadcast(intent);
+
     }
 
-    public synchronized int getState(){
-        return mState;
+    public synchronized int getConnectionState(){
+        return mConnState;
     }
 
     private class ConnectThread extends Thread {
@@ -342,7 +353,7 @@ public class RobotService extends Service {
             @Override
             public void run() {
                 while(true) {
-                    while (robotTaskQueue.isEmpty() || RobotService.this.getState() != STATE_CONNECTED) {
+                    while (robotTaskQueue.isEmpty() || RobotService.this.getConnectionState() != CONN_STATE_CONNECTED) {
                         synchronized (this) {
                             try {
                                 wait();

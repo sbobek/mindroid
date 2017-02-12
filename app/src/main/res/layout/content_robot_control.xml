@@ -21,7 +21,12 @@
         app:srcCompat="@android:drawable/ic_media_play"
         android:id="@+id/start"
         android:onClick="start"
-        app:backgroundTint="@android:color/holo_purple" />
+        app:backgroundTint="@android:color/holo_purple"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/stop"
+        android:layout_toEndOf="@+id/stop"
+        android:layout_marginLeft="23dp"
+        android:layout_marginStart="23dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
@@ -29,14 +34,27 @@
         android:clickable="true"
         app:fabSize="mini"
         app:srcCompat="@android:drawable/ic_btn_speak_now"
-        android:layout_below="@+id/start"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="22dp"
         android:id="@+id/voice"
-        android:onClick="voiceCommands"
+        android:onClick="voice"
         app:backgroundTint="@color/colorPrimary"
-        app:rippleColor="@color/colorPrimary" />
+        app:rippleColor="@color/colorPrimary"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="59dp"
+        android:layout_marginEnd="59dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/stat_sys_data_bluetooth"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="connect"
+        android:id="@+id/connect"
+        app:backgroundTint="@android:color/holo_blue_dark" />
 
     <android.support.design.widget.FloatingActionButton
         android:layout_width="wrap_content"
@@ -44,40 +62,10 @@
         android:clickable="true"
         app:fabSize="mini"
         app:srcCompat="@android:drawable/ic_dialog_alert"
-        android:layout_below="@+id/voice"
-        android:layout_alignRight="@+id/voice"
-        android:layout_alignEnd="@+id/voice"
-        android:layout_marginTop="27dp"
         android:onClick="stop"
-        android:id="@+id/stop" />
-
-    <TextView
-        android:text="Stop all"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/stop"
-        android:layout_alignLeft="@+id/textView2"
-        android:layout_alignStart="@+id/textView2"
-        android:id="@+id/textView3" />
-
-    <TextView
-        android:text="Start voice commands"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView2"
-        android:layout_above="@+id/stop"
-        android:layout_alignLeft="@+id/textView"
-        android:layout_alignStart="@+id/textView" />
-
-    <TextView
-        android:text="Run program"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="27dp"
-        android:layout_marginStart="27dp"
-        android:id="@+id/textView"
-        android:layout_above="@+id/voice"
-        android:layout_toRightOf="@+id/start"
-        android:layout_toEndOf="@+id/start" />
+        android:id="@+id/stop"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
 </RelativeLayout>

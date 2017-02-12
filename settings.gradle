@@ -1,1 +1,1 @@
-include ':app', ':mindlib'
+include ':app', ':mindlib', ':models', ':aars'

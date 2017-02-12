@@ -9,4 +9,5 @@ import geist.re.mindlib.RobotService;
 public interface RobotTask {
     public static final String TAG = "Task";
     void execute(RobotService rs);
+    void dismiss(RobotService rs);
 }

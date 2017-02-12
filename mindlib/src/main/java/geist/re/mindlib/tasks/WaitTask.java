@@ -22,18 +22,19 @@ public class WaitTask implements RobotTask {
 
     @Override
     public void execute(final RobotService rs) {
-        rs.setState(RobotService.STATE_WAIT);
+        rs.setOperationState(RobotService.OPERATION_STATE_BUSY);
         Log.d(TAG, "Connection set to wait by wait task");
         timer.schedule(new TimerTask() {
             public void run() {
-                //Only if nothing happened during sleep, return to connected state
-                if(rs.getState() == RobotService.STATE_WAIT) {
-                    rs.setState(RobotService.STATE_CONNECTED);
-                    Log.d(TAG, "Connection reset to connected by wait task");
-                }
+                rs.setOperationState(RobotService.OPERTION_STATE_READY);
+                Log.d(TAG, "Connection reset to connected by wait task");
             }
         }, delay);
-        //create timer task
+    }
+
+    @Override
+    public void dismiss(RobotService rs) {
+        timer.cancel();
     }
 
 }

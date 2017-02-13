@@ -33,11 +33,11 @@ public class RobotService extends Service {
     public static final int CONN_STATE_CONNECTED = 2;
     public static final int CONN_STATE_LOST = 3;
 
-    public static final int OPERTION_STATE_READY = 1;
+    public static final int OPERATION_STATE_READY = 1;
     public static final int OPERATION_STATE_BUSY = 2;
 
     private static final String TAG = "RobotService";
-    public static final String ROBOT_STATE_NOTIFICATION = "robotStateNotofication";
+    public static final String ROBOT_STATE_NOTIFICATION = "robotStateNotification";
     public static final String CONNECTION_STATE_CODE = "connectionCode";
 
 

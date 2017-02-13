@@ -6,6 +6,7 @@ grammar robot;
 <backward>  = run backward;
 <stop> = stop;
 <max>  = (<forward> | <backward> ) with maximum speed;
+<destroy> = destroy yourself;
 
-public <item> = <forward> | <stop> | <backward> | <max>;
+public <item> = <forward> | <stop> | <backward> | <max> | <destroy>;
 

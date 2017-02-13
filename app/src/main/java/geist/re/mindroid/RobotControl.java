@@ -2,11 +2,15 @@ package geist.re.mindroid;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -15,18 +19,22 @@ import geist.re.mindlib.RobotControlActivity;
 import geist.re.mindlib.RobotService;
 
 public class RobotControl extends RobotControlActivity {
-    private static final String TAG = "ControlAPp";
+    private static final String TAG = "ControlApp";
     private static final String ROBOT_NAME = "02Bolek";
-    boolean connected = false;
     private static final float VOLUME = 0.2f;
 
     FloatingActionButton start;
     FloatingActionButton stop;
     FloatingActionButton voice;
     FloatingActionButton connect;
-    private MediaPlayer errorSound;
-    private MediaPlayer yesSound;
-    private MediaPlayer readySound;
+    SoundPool sp = new SoundPool(5, AudioManager.STREAM_NOTIFICATION, 0);
+
+    private static int READY;
+    private static int YES;
+    private static int ERROR;
+
+
+
 
 
     /**************************************************************/
@@ -57,8 +65,24 @@ public class RobotControl extends RobotControlActivity {
             robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
         }else if(message.equals("stop")){
             robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());
+        }else if(message.equals("destroy yourself")){
+            robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(-30));
+            stopRecognizer();
+            int i=0;
+            while(i < 10) {
+                playSound(ERROR);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }if(message.equals("run backward")) {
+            robot.executeSyncTwoMotorTask(robot.motorA.run(-30), robot.motorB.run(-30));
         }else{
-            error();
+            Log.d(TAG, "Received wrong command: "+message);
+            //error();
         }
     }
 
@@ -77,17 +101,17 @@ public class RobotControl extends RobotControlActivity {
 
 
     protected void error(){
-        errorSound.start();
+        playSound(ERROR);
     }
 
     @Override
     protected void onStartListeningForVoiceCommands() {
-        yesSound.start();
+        playSound(READY);
     }
 
     @Override
     protected void onStartListeningForVoiceWakeup() {
-        readySound.start();
+        playSound(READY);
     }
 
     @Override
@@ -108,14 +132,10 @@ public class RobotControl extends RobotControlActivity {
         voice.setVisibility(FloatingActionButton.INVISIBLE);
         connect.setVisibility(FloatingActionButton.INVISIBLE);
 
-        errorSound = MediaPlayer.create(getApplicationContext(), R.raw.error);
-        errorSound.setVolume(VOLUME,VOLUME);
-
-        yesSound = MediaPlayer.create(getApplicationContext(), R.raw.yes);
-        yesSound.setVolume(VOLUME,VOLUME);
-
-        readySound = MediaPlayer.create(getApplicationContext(), R.raw.ready);
-        readySound.setVolume(VOLUME,VOLUME);
+        /** soundId for Later handling of sound pool **/
+        READY=sp.load(this,R.raw.ready, 1); // in 2nd param u have to pass your desire ringtone
+        YES=sp.load(this,R.raw.yes, 1); // in 2nd param u have to pass your desire ringtone
+        ERROR=sp.load(this,R.raw.error, 1); // in 2nd param u have to pass your desire ringtone
 
         //keep the screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -221,6 +241,11 @@ public class RobotControl extends RobotControlActivity {
                     Exception ex = null;
                     robot.connectToRobot(ROBOT_NAME);
                     while(robot.getConnectionState() != RobotService.CONN_STATE_CONNECTED){
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         if(dismissed) break;
                         if(robot.getConnectionState() == RobotService.CONN_STATE_DISCONNECTED){
                             robot.connectToRobot(ROBOT_NAME);
@@ -238,6 +263,10 @@ public class RobotControl extends RobotControlActivity {
 
 
         }
+    }
+
+    public void playSound(final int soundId){
+        sp.play(soundId, 1, 1, 0, 0, 1);
     }
 
     public void quit(View v){

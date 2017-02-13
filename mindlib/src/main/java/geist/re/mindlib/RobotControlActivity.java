@@ -200,19 +200,21 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
         }
 
         final String text = hypothesis.getHypstr();
-        new AsyncTask<Void, Void, Exception>() {
-            @Override
-            protected void onProgressUpdate(Void... values) {
+      //  new AsyncTask<Void, Void, Exception>() {
+      //      @Override
+      //      protected void onProgressUpdate(Void... values) {
                 Toast.makeText(RobotControlActivity.this, text, Toast.LENGTH_LONG).show();
-            }
-
-            @Override
-            protected Exception doInBackground(Void... params) {
-                publishProgress();
-                onVoiceCommand(text);
-                return null;
-            }
-        }.execute();
+      //      }
+        if(text.equals(KEYPHRASE)){
+            return;
+        }
+      //      @Override
+       //     protected Exception doInBackground(Void... params) {
+       //         publishProgress();
+        onVoiceCommand(text);
+       //         return null;
+       //     }
+       // }.execute();
     }
 
     protected void startRecognizer(){

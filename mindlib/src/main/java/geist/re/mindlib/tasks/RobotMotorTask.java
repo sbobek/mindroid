@@ -125,5 +125,6 @@ public class RobotMotorTask implements RobotTask {
     @Override
     public void dismiss(RobotService rs) {
         //do nothing, just do not execute
+        //or actually do something - cancel timer for tacho, stop motors if they run for infinity?
     }
 }

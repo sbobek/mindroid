@@ -70,6 +70,7 @@ public class RobotControl extends RobotControlActivity {
             stopRecognizer();
             int i=0;
             while(i < 10) {
+                i++;
                 playSound(ERROR);
                 try {
                     Thread.sleep(1000);

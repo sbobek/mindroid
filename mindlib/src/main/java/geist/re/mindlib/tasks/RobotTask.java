@@ -6,8 +6,8 @@ import geist.re.mindlib.RobotService;
  * Created by sbk on 09.02.17.
  */
 
-public interface RobotTask {
+public abstract class RobotTask {
     public static final String TAG = "Task";
-    void execute(RobotService rs);
-    void dismiss(RobotService rs);
+    public abstract void  execute(RobotService rs);
+    public abstract byte[] getRawQuery();
 }

@@ -4,7 +4,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import geist.re.mindlib.RobotService;
+import geist.re.mindlib.events.MotorStateEvent;
 import geist.re.mindlib.listeners.MotorStateListener;
+import geist.re.mindlib.tasks.MotorStateQueryTask;
 import geist.re.mindlib.tasks.MotorTask;
 
 /**
@@ -15,17 +17,20 @@ public class Motor {
     public static final byte A = 0x00;
     public static final byte B = 0x01;
     public static final byte C = 0x02;
+    private static final int STATE_STOPPED = 0;
+    private static final int STATE_RUNNING = 1;
     private final RobotService owner;
 
 
     byte port;
 
-    private MotorStateListener motorStateListener;
     private Timer motorStateQueryTimer;
+    private int mState;
 
     public Motor(byte port, RobotService owner){
         this.port = port;
         this.owner = owner;
+        this.mState = STATE_STOPPED;
         motorStateQueryTimer = new Timer();
     }
 
@@ -33,9 +38,17 @@ public class Motor {
         return port;
     }
 
+    public MotorTask run(int speed, int angle){
+        MotorTask rmt = new MotorTask(this);
+        rmt.setPowerSetPoint((byte)speed);
+        rmt.setTachoLimit(angle);
+        return rmt;
+    }
+
     public MotorTask run(int speed){
         MotorTask rmt = new MotorTask(this);
         rmt.setPowerSetPoint((byte)speed);
+        registerMotorStateListener(motorStateListener,200);
         return rmt;
     }
 
@@ -43,6 +56,8 @@ public class Motor {
     public MotorTask stop(){
         MotorTask rmt = new MotorTask(this);
         rmt.setPowerSetPoint((byte)0);
+        unregisterMotorStateListener();
+        setState(STATE_STOPPED);
         return rmt;
     }
 
@@ -51,12 +66,28 @@ public class Motor {
             motorStateQueryTimer.cancel();
         }
         motorStateListener=msl;
-        motorStateQueryTimer.schedule(new TimerTask() {
+        motorStateQueryTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                //write to socket queryabout the state
+                owner.addToQueryQueue(new MotorStateQueryTask(Motor.this));
             }
-        },rate);
+        },0,rate);
 
     }
+
+    public void unregisterMotorStateListener(){
+        motorStateListener = null;
+        motorStateQueryTimer.cancel();
+    }
+
+    public void setState(int state){
+        mState = state;
+    }
+
+    private MotorStateListener motorStateListener = new MotorStateListener() {
+        @Override
+        public void onEventOccurred(MotorStateEvent e) {
+                //set state
+        }
+    };
 }

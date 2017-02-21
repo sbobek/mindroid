@@ -46,12 +46,12 @@ public class RobotControl extends RobotControlActivity {
     public void commandProgram(){
         super.commandProgram();
         /*************** START YOUR PROGRAM HERE ***************/
-        robot.executeMotorTask(robot.motorA.run(80));
+        robot.executeMotorTask(robot.motorA.run(10));
         pause(1000);
         robot.executeMotorTask(robot.motorA.stop());
-        robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
-        pause(1000);
-        robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());
+        //robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
+        //pause(1000);
+        //robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());
 
     }
 
@@ -175,7 +175,7 @@ public class RobotControl extends RobotControlActivity {
     }
 
     public void start(View v){
-        if(robot != null || robot.getConnectionState() != RobotService.CONN_STATE_CONNECTED){
+        if(robot == null || robot.getConnectionState() != RobotService.CONN_STATE_CONNECTED){
             Toast.makeText(this, "Waiting for robot to connect",Toast.LENGTH_LONG).show();
             if(robot.getConnectionState() != RobotService.CONN_STATE_CONNECTING){
                 robot.connectToRobot(ROBOT_NAME);

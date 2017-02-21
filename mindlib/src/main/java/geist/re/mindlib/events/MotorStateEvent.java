@@ -5,4 +5,8 @@ package geist.re.mindlib.events;
  */
 
 public class MotorStateEvent extends Event {
+    public MotorStateEvent(byte[] telegram){
+
+    }
+
 }

@@ -1,5 +1,7 @@
 package geist.re.mindlib.tasks;
 
+import android.util.Log;
+
 import java.nio.ByteBuffer;
 
 import geist.re.mindlib.RobotService;
@@ -9,7 +11,7 @@ import geist.re.mindlib.hardware.Motor;
  * Created by sbk on 09.02.17.
  */
 
-public class RobotMotorTask implements RobotTask {
+public class MotorTask implements RobotTask {
 
     private static final byte VAL_LENGTH_LSB = 0x0c;
     private static final byte VAL_LENGTH_MSB = 0x00;
@@ -29,6 +31,9 @@ public class RobotMotorTask implements RobotTask {
     private static final byte VAL_RUN_STATE_RUNNING = 0x20;
     private static final byte VAL_RUN_STATE_RAMPDOWN = 0x40;
 
+    private static final byte VAL_RESET_MESSAGE_LENGTH_LSB = 0x40;
+    private static final byte VAL_RESET_MESSAGE_LENGTH_MSB = 0x00;
+
 
 
     private static final int IDX_OUTPUT_PORT = 4;
@@ -44,13 +49,16 @@ public class RobotMotorTask implements RobotTask {
 
 
 
-    byte [] data = {VAL_LENGTH_LSB, VAL_LENGTH_MSB, VAL_DIRECT_CMD, VAL_CMD_TYPE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    byte [] resetMotorPosition = {VAL_RESET_MESSAGE_LENGTH_LSB,VAL_RESET_MESSAGE_LENGTH_MSB,0x00,0x0A,0x00};
+    byte [] data = {VAL_RESET_MESSAGE_LENGTH_LSB,VAL_RESET_MESSAGE_LENGTH_MSB,0x00,0x0A,0x00,
+            VAL_LENGTH_LSB, VAL_LENGTH_MSB, VAL_DIRECT_CMD, VAL_CMD_TYPE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    public RobotMotorTask(byte [] data){
+    public MotorTask(byte [] data, byte [] resetMotorPosition){
         this.data = data;
+        this.resetMotorPosition = resetMotorPosition;
     }
 
-    public RobotMotorTask(Motor m){
+    public MotorTask(Motor m){
         setOutputPort(m.getPort());
         enableRegulationMode();
         enableSpeedRegulation();
@@ -61,8 +69,11 @@ public class RobotMotorTask implements RobotTask {
     }
 
 
+
+
     public void setOutputPort(byte port){
         data[IDX_OUTPUT_PORT] = port;
+        resetMotorPosition[IDX_OUTPUT_PORT] = port;
     }
 
     public void setPowerSetPoint(byte powerSetPoint){
@@ -77,15 +88,19 @@ public class RobotMotorTask implements RobotTask {
         data[IDX_REGULATION] |= VAL_REGULATION_SYNC;
     }
 
-    public RobotMotorTask syncWith(RobotMotorTask other){
+    public MotorTask syncWith(MotorTask other){
         sync();
         other.sync();
 
         byte [] mergedData = new byte[data.length+other.data.length];
+        byte [] mergedResetMotorPositionData = new byte[resetMotorPosition.length+other.resetMotorPosition.length];
+        System.arraycopy(resetMotorPosition, 0, mergedResetMotorPositionData, 0, resetMotorPosition.length);
+        System.arraycopy(other.resetMotorPosition, 0, mergedResetMotorPositionData, resetMotorPosition.length,other.resetMotorPosition.length);
+
         System.arraycopy(data, 0, mergedData, 0, data.length);
         System.arraycopy(other.data, 0, mergedData, data.length,other.data.length);
 
-        return new RobotMotorTask(mergedData);
+        return new MotorTask(mergedData, mergedResetMotorPositionData);
 
     }
 
@@ -107,6 +122,10 @@ public class RobotMotorTask implements RobotTask {
         data[IDX_MODE] |= VAL_MODE_ENABLE_REGULATION;
     }
 
+    public void setRotationAngleLimit(double angleLimit){
+
+    }
+
     public void setTachoLimit(int limit){
         byte[] bytes = ByteBuffer.allocate(4).putInt(limit).array();
 
@@ -114,16 +133,26 @@ public class RobotMotorTask implements RobotTask {
         data[IDX_TACHO_START+1] = bytes[2];
         data[IDX_TACHO_START+2] = bytes[1];
         data[IDX_TACHO_START+3] = bytes[0];
+        Log.d(TAG, "Tacho limit: "+Integer.toHexString(limit)+" was translated to "+
+                Integer.toHexString(bytes[3])+"-"+
+                Integer.toHexString(bytes[2])+"-"+
+                Integer.toHexString(bytes[1])+"-"+
+                Integer.toHexString(bytes[0]));
+
     }
 
 
     @Override
     public void execute(RobotService rs) {
+        //depending on the powerset -- motos is busy or not busy
+        rs.writeToNXTSocket(resetMotorPosition);
         rs.writeToNXTSocket(data);
+        //TODO: add listener to stop on tacho count if tacho count set
     }
 
     @Override
     public void dismiss(RobotService rs) {
+        //unregister litener?
         //do nothing, just do not execute
         //or actually do something - cancel timer for tacho, stop motors if they run for infinity?
     }

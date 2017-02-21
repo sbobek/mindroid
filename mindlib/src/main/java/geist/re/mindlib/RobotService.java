@@ -16,10 +16,14 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import geist.re.mindlib.hardware.Motor;
-import geist.re.mindlib.tasks.RobotMotorTask;
+import geist.re.mindlib.listeners.MotorStateListener;
+import geist.re.mindlib.tasks.MotorTask;
+import geist.re.mindlib.tasks.RobotQueryTask;
 import geist.re.mindlib.tasks.RobotTask;
 
 
@@ -28,13 +32,15 @@ import geist.re.mindlib.tasks.RobotTask;
  */
 
 public class RobotService extends Service {
+
     public static final int CONN_STATE_DISCONNECTED = 0;
     public static final int CONN_STATE_CONNECTING = 1;
     public static final int CONN_STATE_CONNECTED = 2;
     public static final int CONN_STATE_LOST = 3;
 
     public static final int OPERATION_STATE_READY = 1;
-    public static final int OPERATION_STATE_BUSY = 2;
+    public static final int OPERATION_STATE_DEAF = 2;
+    public static final int OPERATION_STATE_BUSY = 3;
 
     private static final String TAG = "RobotService";
     public static final String ROBOT_STATE_NOTIFICATION = "robotStateNotification";
@@ -48,23 +54,32 @@ public class RobotService extends Service {
     private int mOperState;
 
     private LinkedList<RobotTask> robotTaskQueue = new LinkedList<>();
+    private LinkedList<RobotQueryTask> robotQueryQueue = new LinkedList<>();
+    private LinkedList<RobotTask> pendingTasks = new LinkedList<>();
     TaskExecutorThread taskExecutor = new TaskExecutorThread();
+    QueryExecutorThread queryExecutor = new QueryExecutorThread();
+
+
 
     public Motor motorA,motorB,motorC;
 
     private Binder mRobotBinder = new RobotBinder();
 
+
     public RobotService(){
-        motorA = new Motor(Motor.A);
-        motorB = new Motor(Motor.B);
-        motorC = new Motor(Motor.C);
+        motorA = new Motor(Motor.A,this);
+        motorB = new Motor(Motor.B,this);
+        motorC = new Motor(Motor.C,this);
+
         taskExecutor.start();
 
 
     }
 
 
-    public void addToQueueTask(RobotTask rt){
+
+
+    public synchronized void addToQueueTask(RobotTask rt){
         robotTaskQueue.add(rt);
         synchronized (taskExecutor) {
             taskExecutor.notify();
@@ -72,16 +87,32 @@ public class RobotService extends Service {
 
     }
 
-    public void executeMotorTask(RobotMotorTask motorTask){
+    public synchronized void addToQueryQueue(RobotQueryTask rqt){
+        robotQueryQueue.add(rqt);
+        synchronized (queryExecutor) {
+            queryExecutor.notify();
+        }
+
+    }
+
+    public synchronized void addToPendingTasks(RobotTask rt){
+        pendingTasks.add(rt);
+    }
+
+    public synchronized  void removeFromPendingTasks(RobotTask rt){
+        pendingTasks.remove(rt);
+    }
+
+    public void executeMotorTask(MotorTask motorTask){
         addToQueueTask(motorTask);
     }
 
-    public void executeSyncTwoMotorTask(RobotMotorTask motorTask1, RobotMotorTask motorTask2){
+    public void executeSyncTwoMotorTask(MotorTask motorTask1, MotorTask motorTask2){
         RobotTask finalTask =  motorTask1.syncWith(motorTask2);
         addToQueueTask(finalTask);
     }
 
-    public void executeSyncThreeMotorTask(RobotMotorTask motorTask1, RobotMotorTask motorTask2, RobotMotorTask motorTask3){
+    public void executeSyncThreeMotorTask(MotorTask motorTask1, MotorTask motorTask2, MotorTask motorTask3){
         RobotTask finalTask = motorTask1.syncWith(motorTask2).syncWith(motorTask3);
         addToQueueTask(finalTask);
     }
@@ -323,6 +354,12 @@ public class RobotService extends Service {
             while (true) {
                 try {
                     bytes = mmInStream.read(buffer);
+                    String msg = "";
+                    for(byte b: buffer){
+                        msg+=Byte.toString(b);
+                    }
+                    Log.d(TAG,msg);
+                    //read bytes and notify listener, if any
                 } catch (IOException e) {
                     e.printStackTrace();
                     connectionLost();
@@ -353,7 +390,9 @@ public class RobotService extends Service {
             @Override
             public void run() {
                 while(true) {
-                    while (robotTaskQueue.isEmpty() || RobotService.this.getConnectionState() != CONN_STATE_CONNECTED) {
+                    while (robotTaskQueue.isEmpty() ||
+                            RobotService.this.getOperationState() != OPERATION_STATE_READY ||
+                            RobotService.this.getConnectionState() != CONN_STATE_CONNECTED) {
                         synchronized (this) {
                             try {
                                 wait();
@@ -362,11 +401,35 @@ public class RobotService extends Service {
                             }
                         }
                     }
-                    RobotTask rt = robotTaskQueue.poll();
-                    rt.execute(RobotService.this);
+                    synchronized (this) {
+                        RobotTask rt = robotTaskQueue.poll();
+                        rt.execute(RobotService.this);
+                    }
                 }
 
             }
+    }
+
+    protected class QueryExecutorThread extends Thread{
+        @Override
+        public void run() {
+            while(true) {
+                while (robotQueryQueue.isEmpty() || RobotService.this.getConnectionState() != CONN_STATE_CONNECTED) {
+                    synchronized (this) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                synchronized (this) {
+                    RobotQueryTask rqt = robotQueryQueue.poll();
+                    writeToNXTSocket(rqt.getRawQuery());
+                }
+            }
+
+        }
     }
 
 }

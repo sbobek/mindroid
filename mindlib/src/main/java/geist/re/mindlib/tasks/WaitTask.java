@@ -22,12 +22,16 @@ public class WaitTask implements RobotTask {
 
     @Override
     public void execute(final RobotService rs) {
-        rs.setOperationState(RobotService.OPERATION_STATE_BUSY);
+        rs.setOperationState(RobotService.OPERATION_STATE_DEAF);
         Log.d(TAG, "Connection set to wait by wait task");
+        rs.addToPendingTasks(this);
         timer.schedule(new TimerTask() {
             public void run() {
-                rs.setOperationState(RobotService.OPERATION_STATE_READY);
-                Log.d(TAG, "Connection reset to connected by wait task");
+                if(rs.getOperationState() == rs.OPERATION_STATE_DEAF) {
+                    rs.setOperationState(RobotService.OPERATION_STATE_READY);
+                    Log.d(TAG, "Connection reset to connected by wait task");
+                    rs.removeFromPendingTasks(WaitTask.this);
+                }
             }
         }, delay);
     }
@@ -35,6 +39,10 @@ public class WaitTask implements RobotTask {
     @Override
     public void dismiss(RobotService rs) {
         timer.cancel();
+        rs.removeFromPendingTasks(this);
+        if(rs.getOperationState() == rs.OPERATION_STATE_DEAF) {
+            rs.setOperationState(RobotService.OPERATION_STATE_READY);
+        }
     }
 
 }

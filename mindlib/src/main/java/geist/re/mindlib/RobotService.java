@@ -70,11 +70,10 @@ public class RobotService extends Service {
         motorC = new Motor(Motor.C,this);
 
         taskExecutor.start();
+        queryExecutor.start();
 
 
     }
-
-
 
 
     public synchronized void addToQueueTask(RobotTask rt){
@@ -345,8 +344,10 @@ public class RobotService extends Service {
                 try {
                     bytes = mmInStream.read(buffer);
                     Event event = convertResponseIntoEvent(buffer);
-                    Log.d(TAG, "Received telegram: "+event.toString());
-                    notifyListeners(event);
+                    if(event != null) {
+                        Log.d(TAG, "Received telegram: " + event.toString());
+                        notifyListeners(event);
+                    }
                     //read bytes and notify listener, if any
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -377,11 +378,18 @@ public class RobotService extends Service {
         public Event convertResponseIntoEvent(byte[] rawResponse) throws TelegramTypeException {
             if(rawResponse[Event.IDX_TELEGRAM_TYPE] != Event.TELEGRAM_RESPONSE){
                 //not a replay telegram, return null;
+                String msg = "";
+                for(byte b: rawResponse){
+                    msg+=":"+b+":";
+                }
+                Log.d(TAG, "Received not queried response: "+msg);
                 return null;
             }
             switch(rawResponse[Event.IDX_RESPONSE_TYPE]){
                 case Event.TYPE_GETOUTPUTSTATE:
                     return new MotorStateEvent(rawResponse);
+                default:
+                    Log.d(TAG, "Unknown telegram");
 
             }
             return null;
@@ -393,11 +401,14 @@ public class RobotService extends Service {
                 case Event.TYPE_GETOUTPUTSTATE:
                     MotorStateEvent mse = (MotorStateEvent)event;
                     if(mse.getMotor() == Motor.A){
+                        Log.d(TAG, "Notifying Motor A listener");
                         motorA.pushMotorStateEvent(event);
                     }else if(mse.getMotor() == Motor.B){
                         motorB.pushMotorStateEvent(event);
+                        Log.d(TAG, "Notifying Motor A listener");
                     }else{
                         motorC.pushMotorStateEvent(event);
+                        Log.d(TAG, "Notifying Motor A listener");
                     }
                     break;
             }

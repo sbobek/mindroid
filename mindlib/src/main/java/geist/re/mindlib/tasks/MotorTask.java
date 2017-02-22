@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 
 import geist.re.mindlib.RobotService;
 import geist.re.mindlib.hardware.Motor;
+import geist.re.mindlib.utils.BluetoothProtocolUtils;
 
 /**
  * Created by sbk on 09.02.17.
@@ -86,17 +87,16 @@ public class MotorTask extends RobotTask {
     }
 
     public void setTachoLimit(int limit) {
-        byte[] bytes = ByteBuffer.allocate(4).putInt(limit).array();
-
-        data[IDX_TACHO_START] = bytes[3];
-        data[IDX_TACHO_START + 1] = bytes[2];
-        data[IDX_TACHO_START + 2] = bytes[1];
-        data[IDX_TACHO_START + 3] = bytes[0];
+        byte bytes [] = BluetoothProtocolUtils.integerToLittleEndian(limit);
+        data[IDX_TACHO_START] = bytes[0];
+        data[IDX_TACHO_START + 1] = bytes[1];
+        data[IDX_TACHO_START + 2] = bytes[2];
+        data[IDX_TACHO_START + 3] = bytes[3];
         Log.d(TAG, "Tacho limit: " + Integer.toHexString(limit) + " was translated to " +
-                Integer.toHexString(bytes[3]) + "-" +
-                Integer.toHexString(bytes[2]) + "-" +
+                Integer.toHexString(bytes[0]) + "-" +
                 Integer.toHexString(bytes[1]) + "-" +
-                Integer.toHexString(bytes[0]));
+                Integer.toHexString(bytes[2]) + "-" +
+                Integer.toHexString(bytes[3]));
 
     }
 

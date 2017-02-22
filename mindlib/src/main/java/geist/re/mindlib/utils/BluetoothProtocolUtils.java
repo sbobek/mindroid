@@ -1,5 +1,7 @@
 package geist.re.mindlib.utils;
 
+import android.util.Log;
+
 import java.nio.ByteBuffer;
 import java.util.Collections;
 
@@ -11,12 +13,12 @@ public class BluetoothProtocolUtils {
     public static final int INT_SIZE  = 4;
 
     public static int littleEndianToInteger(byte[] data, int startIdx){
-        int result = 0;
-        for(int i = startIdx+INT_SIZE-1; i >=0; i--){
-            //TODO: negative integers?
-            result += data[i];
+        byte [] flipped = new byte[INT_SIZE];
+        for(int s = startIdx+INT_SIZE-1,d=0; s >=startIdx; s--,d++){
+            flipped[d] =  data[s];
         }
-        return result;
+
+        return  ByteBuffer.wrap(flipped).getInt();
     }
     public static int littleEndianToInteger(byte[] data){
         return littleEndianToInteger(data,0);
@@ -31,7 +33,7 @@ public class BluetoothProtocolUtils {
         return result;
     }
 
-    public static byte [] integerToLittleendian(int data, byte [] destination, int startIdx){
+    public static byte [] integerToLittleEndian(int data, byte [] destination, int startIdx){
         byte [] source = BluetoothProtocolUtils.integerToLittleEndian(data);
         for(int d = startIdx,s =0; d < startIdx+INT_SIZE;d++,s++){
             destination[d] = source[s];

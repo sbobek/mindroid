@@ -1,5 +1,7 @@
 package geist.re.mindlib.hardware;
 
+import android.util.Log;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,9 +40,10 @@ public class Motor {
     public static final byte VAL_RESET_MESSAGE_LENGTH_MSB = 0x00;
 
 
-    private static final int STATE_STOPPED = 0;
-    private static final int STATE_RUNNING = 1;
+    public static final int STATE_STOPPED = 0;
+    public static final int STATE_RUNNING = 1;
     private static final long MOTOR_STATE_UPDATE_RATE = 200;
+    private static final String TAG = "Motor";
 
     private final RobotService owner;
 
@@ -48,6 +51,8 @@ public class Motor {
     byte port;
 
     private Timer motorStateQueryTimer;
+    private MotorStateEvent previousStateUpdate;
+    private MotorStateEvent currentStateUpdate;
     private int mState;
 
     public Motor(byte port, RobotService owner){
@@ -62,17 +67,16 @@ public class Motor {
     }
 
     public MotorTask run(int speed, int angle){
+        setState(STATE_RUNNING);
         MotorTask rmt = new MotorTask(this);
         rmt.setPowerSetPoint((byte)speed);
         rmt.setTachoLimit(angle);
+        registerMotorStateListener(motorStateListener,MOTOR_STATE_UPDATE_RATE);
         return rmt;
     }
 
-    public MotorTask run(int speed){
-        MotorTask rmt = new MotorTask(this);
-        rmt.setPowerSetPoint((byte)speed);
-        registerMotorStateListener(motorStateListener,MOTOR_STATE_UPDATE_RATE);
-        return rmt;
+    public MotorTask run(int speed){;
+        return run(speed, 0);
     }
 
 
@@ -87,7 +91,10 @@ public class Motor {
     public synchronized void registerMotorStateListener(MotorStateListener msl, long rate){
         if(motorStateListener != null){
             motorStateQueryTimer.cancel();
+            motorStateQueryTimer = new Timer();
         }
+        currentStateUpdate = null;
+        previousStateUpdate = null;
         motorStateListener=msl;
         motorStateQueryTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -105,6 +112,7 @@ public class Motor {
 
     public synchronized void setState(int state){
         mState = state;
+        Log.d(TAG,"Setting state to "+state);
     }
 
     public synchronized int getState(){
@@ -114,16 +122,22 @@ public class Motor {
     private MotorStateListener motorStateListener = new MotorStateListener() {
         @Override
         public void onEventOccurred(MotorStateEvent e) {
-                if(e.getPower() == 0){
+            if(previousStateUpdate != null && previousStateUpdate.getRotationCount() != 0){
+                Log.d(TAG, "onStateChanged: "+previousStateUpdate.getRotationCount()+" vs "+currentStateUpdate.getRotationCount());
+                if(previousStateUpdate.getRotationCount() == currentStateUpdate.getRotationCount()){
                     setState(STATE_STOPPED);
                 }else{
                     setState(STATE_RUNNING);
                 }
+            }
         }
     };
 
     public synchronized void pushMotorStateEvent(Event event) {
+        Log.d(TAG, "Pushing motor state event");
         if(motorStateListener == null) return;
+        previousStateUpdate = currentStateUpdate;
+        currentStateUpdate = (MotorStateEvent) event;
         motorStateListener.onEventOccurred(event);
     }
 }

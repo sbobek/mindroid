@@ -1,5 +1,7 @@
 package geist.re.mindlib.tasks;
 
+import android.util.Log;
+
 import geist.re.mindlib.RobotService;
 import geist.re.mindlib.hardware.Motor;
 
@@ -17,11 +19,12 @@ public class MotorStateQueryTask extends RobotQueryTask {
 
     @Override
     public byte[] getRawQuery() {
-        return new byte[0];
+        return query;
     }
 
     @Override
     public void execute(RobotService rs) {
+        Log.d(TAG, "Executing robot motor state query");
         rs.writeToNXTSocket(getRawQuery());
     }
 }

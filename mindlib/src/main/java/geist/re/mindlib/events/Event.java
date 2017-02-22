@@ -5,8 +5,8 @@ package geist.re.mindlib.events;
  */
 
 public abstract class Event {
-    public static final int IDX_TELEGRAM_TYPE=0;
-    public static final int IDX_RESPONSE_TYPE=1;
+    public static final int IDX_TELEGRAM_TYPE=2;
+    public static final int IDX_RESPONSE_TYPE=3;
 
 
     public static final byte TELEGRAM_RESPONSE = 0x02;
@@ -15,6 +15,10 @@ public abstract class Event {
     protected byte []  data;
     protected int mType;
 
+    public Event(byte [] rawData){
+        data = rawData;
+        mType = rawData[IDX_RESPONSE_TYPE];
+    }
 
     public int getType(){
         return mType;

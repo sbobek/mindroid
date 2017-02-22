@@ -8,21 +8,21 @@ import geist.re.mindlib.utils.BluetoothProtocolUtils;
  */
 
 public class MotorStateEvent extends Event {
-    public static final int IDX_STATUS = 2;
-    public static final int IDX_MOTOR_PORT = 3;
-    public static final int IDX_POWER = 4;
-    public static final int IDX_MODE = 5;
-    public static final int IDX_REGULATION_MODE = 6;
-    public static final int IDX_TURN_RATIO = 7;
-    public static final int IDX_RUN_STATE = 8;
-    public static final int IDX_TACHO_LIMIT_START = 9;
-    public static final int IDX_TACHO_LIMIT_END = 12;
-    public static final int IDX_TACHO_COUNT_START = 13;
-    public static final int IDX_TACHO_COUNT_END = 16;
-    public static final int IDX_BLOCK_TACHO_COUNT_START = 17;
-    public static final int IDX_BLOCK_TACHO_COUNT_END = 20;
-    public static final int IDX_ROTATION_COUNT_START = 21;
-    public static final int IDX_ROTATION_COUNT_END = 24;
+    public static final int IDX_STATUS = 4;
+    public static final int IDX_MOTOR_PORT = 5;
+    public static final int IDX_POWER = 6;
+    public static final int IDX_MODE = 7;
+    public static final int IDX_REGULATION_MODE = 8;
+    public static final int IDX_TURN_RATIO = 9;
+    public static final int IDX_RUN_STATE = 10;
+    public static final int IDX_TACHO_LIMIT_START = 11;
+    public static final int IDX_TACHO_LIMIT_END = 14;
+    public static final int IDX_TACHO_COUNT_START = 15;
+    public static final int IDX_TACHO_COUNT_END = 18;
+    public static final int IDX_BLOCK_TACHO_COUNT_START = 19;
+    public static final int IDX_BLOCK_TACHO_COUNT_END = 22;
+    public static final int IDX_ROTATION_COUNT_START = 23;
+    public static final int IDX_ROTATION_COUNT_END = 26;
 
     public static final int STATUS_TRUE = 0;
     public static final int STATUS_FALSE = 1;
@@ -45,7 +45,8 @@ public class MotorStateEvent extends Event {
 
 
     public MotorStateEvent(byte[] telegram) throws TelegramTypeException {
-        if(telegram[IDX_TELEGRAM_TYPE] != TYPE_GETOUTPUTSTATE) throw new TelegramTypeException();
+        super(telegram);
+        if(telegram[IDX_RESPONSE_TYPE] != TYPE_GETOUTPUTSTATE) throw new TelegramTypeException("Response routed to incorrect object");
         if(telegram[IDX_STATUS] == 0){
             status = true;
         }else{

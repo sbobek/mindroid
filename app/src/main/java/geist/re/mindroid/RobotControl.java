@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import geist.re.mindlib.RobotControlActivity;
 import geist.re.mindlib.RobotService;
+import geist.re.mindlib.hardware.Motor;
 
 public class RobotControl extends RobotControlActivity {
     private static final String TAG = "ControlApp";
@@ -46,8 +47,11 @@ public class RobotControl extends RobotControlActivity {
     public void commandProgram(){
         super.commandProgram();
         /*************** START YOUR PROGRAM HERE ***************/
-        robot.executeMotorTask(robot.motorA.run(10));
-        pause(1000);
+        robot.executeMotorTask(robot.motorA.run(10,360*3));
+        while(robot.motorA.getState() == Motor.STATE_RUNNING) {
+            pause(500);
+            Log.d(TAG, "Waiting....");
+        }
         robot.executeMotorTask(robot.motorA.stop());
         //robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
         //pause(1000);

@@ -13,6 +13,12 @@ public abstract class Event {
     public static final byte TYPE_GETOUTPUTSTATE = 0x06;
 
     protected byte []  data;
+    protected int mType;
+
+
+    public int getType(){
+        return mType;
+    }
 
     @Override
     public String toString() {

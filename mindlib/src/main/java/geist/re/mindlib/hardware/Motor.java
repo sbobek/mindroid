@@ -4,6 +4,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import geist.re.mindlib.RobotService;
+import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.MotorStateEvent;
 import geist.re.mindlib.listeners.MotorStateListener;
 import geist.re.mindlib.tasks.MotorStateQueryTask;
@@ -17,8 +18,30 @@ public class Motor {
     public static final byte A = 0x00;
     public static final byte B = 0x01;
     public static final byte C = 0x02;
+
+    public static final byte VAL_CMD_TYPE = 0x04;
+
+    public static final byte VAL_MODE_MOTORON = 0x01;
+    public static final byte VAL_MODE_USE_BREAKES = 0x02;
+    public static final byte VAL_MODE_ENABLE_REGULATION = 0x04;
+
+    public static final byte VAL_REGULATION_IDLE = 0x00;
+    public static final byte VAL_REGULATION_POWER = 0x01;
+    public static final byte VAL_REGULATION_SYNC = 0x02;
+
+    public static final byte VAL_RUN_STATE_IDLE = 0x00;
+    public static final byte VAL_RUN_STATE_RAMPPUP = 0x10;
+    public static final byte VAL_RUN_STATE_RUNNING = 0x20;
+    public static final byte VAL_RUN_STATE_RAMPDOWN = 0x40;
+
+    public static final byte VAL_RESET_MESSAGE_LENGTH_LSB = 0x04;
+    public static final byte VAL_RESET_MESSAGE_LENGTH_MSB = 0x00;
+
+
     private static final int STATE_STOPPED = 0;
     private static final int STATE_RUNNING = 1;
+    private static final long MOTOR_STATE_UPDATE_RATE = 200;
+
     private final RobotService owner;
 
 
@@ -48,7 +71,7 @@ public class Motor {
     public MotorTask run(int speed){
         MotorTask rmt = new MotorTask(this);
         rmt.setPowerSetPoint((byte)speed);
-        registerMotorStateListener(motorStateListener,200);
+        registerMotorStateListener(motorStateListener,MOTOR_STATE_UPDATE_RATE);
         return rmt;
     }
 
@@ -61,7 +84,7 @@ public class Motor {
         return rmt;
     }
 
-    public void registerMotorStateListener(MotorStateListener msl, long rate){
+    public synchronized void registerMotorStateListener(MotorStateListener msl, long rate){
         if(motorStateListener != null){
             motorStateQueryTimer.cancel();
         }
@@ -75,19 +98,32 @@ public class Motor {
 
     }
 
-    public void unregisterMotorStateListener(){
+    public synchronized void unregisterMotorStateListener(){
         motorStateListener = null;
         motorStateQueryTimer.cancel();
     }
 
-    public void setState(int state){
+    public synchronized void setState(int state){
         mState = state;
+    }
+
+    public synchronized int getState(){
+        return mState;
     }
 
     private MotorStateListener motorStateListener = new MotorStateListener() {
         @Override
         public void onEventOccurred(MotorStateEvent e) {
-                //set state
+                if(e.getPower() == 0){
+                    setState(STATE_STOPPED);
+                }else{
+                    setState(STATE_RUNNING);
+                }
         }
     };
+
+    public synchronized void pushMotorStateEvent(Event event) {
+        if(motorStateListener == null) return;
+        motorStateListener.onEventOccurred(event);
+    }
 }

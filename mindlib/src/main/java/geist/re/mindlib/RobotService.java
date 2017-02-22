@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.MotorStateEvent;
+import geist.re.mindlib.exceptions.TelegramTypeException;
 import geist.re.mindlib.hardware.Motor;
 import geist.re.mindlib.listeners.MotorStateListener;
 import geist.re.mindlib.tasks.MotorTask;
@@ -351,6 +352,8 @@ public class RobotService extends Service {
                     e.printStackTrace();
                     connectionLost();
                     break;
+                } catch (TelegramTypeException e) {
+                    e.printStackTrace();
                 }
             }
         }
@@ -371,7 +374,7 @@ public class RobotService extends Service {
                 e.printStackTrace();
             }
         }
-        public Event convertResponseIntoEvent(byte[] rawResponse){
+        public Event convertResponseIntoEvent(byte[] rawResponse) throws TelegramTypeException {
             if(rawResponse[Event.IDX_TELEGRAM_TYPE] != Event.TELEGRAM_RESPONSE){
                 //not a replay telegram, return null;
                 return null;
@@ -386,6 +389,20 @@ public class RobotService extends Service {
 
         public void notifyListeners(Event event){
             //motor listeners and robot-user-listeners
+            switch(event.getType()){
+                case Event.TYPE_GETOUTPUTSTATE:
+                    MotorStateEvent mse = (MotorStateEvent)event;
+                    if(mse.getMotor() == Motor.A){
+                        motorA.pushMotorStateEvent(event);
+                    }else if(mse.getMotor() == Motor.B){
+                        motorB.pushMotorStateEvent(event);
+                    }else{
+                        motorC.pushMotorStateEvent(event);
+                    }
+                    break;
+            }
+
+
         }
     }
 

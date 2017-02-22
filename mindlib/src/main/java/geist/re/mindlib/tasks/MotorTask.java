@@ -13,40 +13,24 @@ import geist.re.mindlib.hardware.Motor;
 
 public class MotorTask extends RobotTask {
 
-    private static final byte VAL_LENGTH_LSB = 0x0c;
-    private static final byte VAL_LENGTH_MSB = 0x00;
-    private static final byte VAL_DIRECT_CMD = (byte) 0x80;
-    private static final byte VAL_CMD_TYPE = 0x04;
-
-    private static final byte VAL_MODE_MOTORON = 0x01;
-    private static final byte VAL_MODE_USE_BREAKES = 0x02;
-    private static final byte VAL_MODE_ENABLE_REGULATION = 0x04;
-
-    private static final byte VAL_REGULATION_IDLE = 0x00;
-    private static final byte VAL_REGULATION_POWER = 0x01;
-    private static final byte VAL_REGULATION_SYNC = 0x02;
-
-    private static final byte VAL_RUN_STATE_IDLE = 0x00;
-    private static final byte VAL_RUN_STATE_RAMPPUP = 0x10;
-    private static final byte VAL_RUN_STATE_RUNNING = 0x20;
-    private static final byte VAL_RUN_STATE_RAMPDOWN = 0x40;
-
-    private static final byte VAL_RESET_MESSAGE_LENGTH_LSB = 0x04;
-    private static final byte VAL_RESET_MESSAGE_LENGTH_MSB = 0x00;
+    public static final byte VAL_LENGTH_LSB = 0x0c;
+    public static final byte VAL_LENGTH_MSB = 0x00;
+    public static final byte VAL_DIRECT_CMD = (byte) 0x80;
 
 
-    private static final int IDX_OUTPUT_PORT = 4;
-    private static final int IDX_POWER_SET_POINT = 5;
-    private static final int IDX_MODE = 6;
-    private static final int IDX_REGULATION = 7;
-    private static final int IDX_TURN = 8;
-    private static final int IDX_RUN_STATE = 9;
 
-    private static final int IDX_TACHO_START = 10;
+    public static final int IDX_OUTPUT_PORT = 4;
+    public static final int IDX_POWER_SET_POINT = 5;
+    public static final int IDX_MODE = 6;
+    public static final int IDX_REGULATION = 7;
+    public static final int IDX_TURN = 8;
+    public static final int IDX_RUN_STATE = 9;
+
+    public static final int IDX_TACHO_START = 10;
 
 
-    byte[] resetMotorPosition = {VAL_RESET_MESSAGE_LENGTH_LSB, VAL_RESET_MESSAGE_LENGTH_MSB, VAL_DIRECT_CMD, 0x0A, 0x00, 0x01};
-    byte[] data = {VAL_LENGTH_LSB, VAL_LENGTH_MSB, VAL_DIRECT_CMD, VAL_CMD_TYPE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    byte[] resetMotorPosition = {Motor.VAL_RESET_MESSAGE_LENGTH_LSB, Motor.VAL_RESET_MESSAGE_LENGTH_MSB, VAL_DIRECT_CMD, 0x0A, 0x00, 0x01};
+    byte[] data = {VAL_LENGTH_LSB, VAL_LENGTH_MSB, VAL_DIRECT_CMD, Motor.VAL_CMD_TYPE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     public MotorTask(byte[] data, byte[] resetMotorPosition) {
         this.data = data;
@@ -74,11 +58,11 @@ public class MotorTask extends RobotTask {
     }
 
     public void enableSpeedRegulation() {
-        data[IDX_REGULATION] |= VAL_REGULATION_POWER;
+        data[IDX_REGULATION] |= Motor.VAL_REGULATION_POWER;
     }
 
     public void sync() {
-        data[IDX_REGULATION] |= VAL_REGULATION_SYNC;
+        data[IDX_REGULATION] |= Motor.VAL_REGULATION_SYNC;
     }
 
     public void setTurnRatio(byte turnRatio) {
@@ -86,19 +70,19 @@ public class MotorTask extends RobotTask {
     }
 
     public void setRunStateRunning() {
-        data[IDX_RUN_STATE] = VAL_RUN_STATE_RUNNING;
+        data[IDX_RUN_STATE] = Motor.VAL_RUN_STATE_RUNNING;
     }
 
     public void enableMotorOnMode() {
-        data[IDX_MODE] |= VAL_MODE_MOTORON;
+        data[IDX_MODE] |= Motor.VAL_MODE_MOTORON;
     }
 
     public void enableUseBreaksMode() {
-        data[IDX_MODE] |= VAL_MODE_USE_BREAKES;
+        data[IDX_MODE] |= Motor.VAL_MODE_USE_BREAKES;
     }
 
     public void enableRegulationMode() {
-        data[IDX_MODE] |= VAL_MODE_ENABLE_REGULATION;
+        data[IDX_MODE] |= Motor.VAL_MODE_ENABLE_REGULATION;
     }
 
     public void setTachoLimit(int limit) {

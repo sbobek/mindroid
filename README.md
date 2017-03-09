@@ -36,7 +36,7 @@ Below, the example of a usage of voice commands is given.
 Speach recognition will be enabled when you push the microphone button in the mobnile app.
 It is worth noting, that both functions can be executed simultaneously, i.e. you can write a command program to tell robot to move around, and then in ```onVoiceCommand()``` stop robot when the **stop** phare was recognised.
 
-For more information on voice recognition, see: Advanced guide and [CMU Sphinx website](http://cmusphinx.sourceforge.net/)
+For more information on voice recognition, see: [Advanced guide](#advanced-guide) and [CMU Sphinx website](http://cmusphinx.sourceforge.net/)
 
 ``` java
  @Override

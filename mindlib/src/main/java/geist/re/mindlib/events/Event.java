@@ -10,7 +10,7 @@ public abstract class Event {
 
 
     public static final byte TELEGRAM_RESPONSE = 0x02;
-    public static final byte TYPE_GETOUTPUTSTATE = 0x06;
+    public static final byte RESPONSE_TYPE_GETOUTPUTSTATE = 0x06;
 
     protected byte []  data;
     protected int mType;

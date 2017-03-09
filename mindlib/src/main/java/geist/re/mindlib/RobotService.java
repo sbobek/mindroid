@@ -16,15 +16,12 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.MotorStateEvent;
 import geist.re.mindlib.exceptions.TelegramTypeException;
 import geist.re.mindlib.hardware.Motor;
-import geist.re.mindlib.listeners.MotorStateListener;
 import geist.re.mindlib.tasks.MotorTask;
 import geist.re.mindlib.tasks.RobotQueryTask;
 import geist.re.mindlib.tasks.RobotTask;
@@ -386,7 +383,7 @@ public class RobotService extends Service {
                 return null;
             }
             switch(rawResponse[Event.IDX_RESPONSE_TYPE]){
-                case Event.TYPE_GETOUTPUTSTATE:
+                case Event.RESPONSE_TYPE_GETOUTPUTSTATE:
                     return new MotorStateEvent(rawResponse);
                 default:
                     Log.d(TAG, "Unknown telegram");
@@ -398,7 +395,7 @@ public class RobotService extends Service {
         public void notifyListeners(Event event){
             //motor listeners and robot-user-listeners
             switch(event.getType()){
-                case Event.TYPE_GETOUTPUTSTATE:
+                case Event.RESPONSE_TYPE_GETOUTPUTSTATE:
                     MotorStateEvent mse = (MotorStateEvent)event;
                     if(mse.getMotor() == Motor.A){
                         Log.d(TAG, "Notifying Motor A listener");

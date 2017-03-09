@@ -46,7 +46,7 @@ public class MotorStateEvent extends Event {
 
     public MotorStateEvent(byte[] telegram) throws TelegramTypeException {
         super(telegram);
-        if(telegram[IDX_RESPONSE_TYPE] != TYPE_GETOUTPUTSTATE) throw new TelegramTypeException("Response routed to incorrect object");
+        if(telegram[IDX_RESPONSE_TYPE] != RESPONSE_TYPE_GETOUTPUTSTATE) throw new TelegramTypeException("Response routed to incorrect object");
         if(telegram[IDX_STATUS] == 0){
             status = true;
         }else{

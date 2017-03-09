@@ -51,7 +51,6 @@ public class Motor {
     byte port;
 
     private Timer motorStateQueryTimer;
-    private MotorStateEvent previousStateUpdate;
     private MotorStateEvent currentStateUpdate;
     private int mState;
 
@@ -94,7 +93,6 @@ public class Motor {
             motorStateQueryTimer = new Timer();
         }
         currentStateUpdate = null;
-        previousStateUpdate = null;
         motorStateListener=msl;
         motorStateQueryTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -119,12 +117,16 @@ public class Motor {
         return mState;
     }
 
+    public synchronized MotorStateEvent getMotorState(){
+        return currentStateUpdate;
+    }
+
     private MotorStateListener motorStateListener = new MotorStateListener() {
         @Override
         public void onEventOccurred(MotorStateEvent e) {
-            if(previousStateUpdate != null && previousStateUpdate.getRotationCount() != 0){
-                Log.d(TAG, "onStateChanged: "+previousStateUpdate.getRotationCount()+" vs "+currentStateUpdate.getRotationCount());
-                if(previousStateUpdate.getRotationCount() == currentStateUpdate.getRotationCount()){
+            if(currentStateUpdate != null){
+                Log.d(TAG, "onStateChanged: "+currentStateUpdate.getRotationCount());
+                if(currentStateUpdate.getRotationCount() >= currentStateUpdate.getTachoLimit()){
                     setState(STATE_STOPPED);
                 }else{
                     setState(STATE_RUNNING);
@@ -136,7 +138,6 @@ public class Motor {
     public synchronized void pushMotorStateEvent(Event event) {
         Log.d(TAG, "Pushing motor state event");
         if(motorStateListener == null) return;
-        previousStateUpdate = currentStateUpdate;
         currentStateUpdate = (MotorStateEvent) event;
         motorStateListener.onEventOccurred(event);
     }

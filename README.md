@@ -6,8 +6,10 @@ Main features:
   * Quickstart skeleton for begginers in Java programming (suitable for grades 8 and up)
   * Robot service (thread safe) for advanced programmers.
   
+To see the available robot commands and their documentations, see [Overview of robot commands](#overview-of-robot-commands)
+  
 ## Bgginers guide
-The simplest way to start programing is to clone the repository and open the RobotControl class that is located in the **app** module.
+The simplest way to start programing is to clone the repository and open the [RobotControl](https://github.com/sbobek/mindroid/blob/master/app/src/main/java/geist/re/mindroid/RobotControl.java) class that is located in the **app** module.
 There are two functions: 
   * ```commandProgram()``` -- here you can write a regular program that will be executed when you hit the play button on your mobile phone.
   * ```onVoiceCommand()``` -- here you can place any code that should be executed when voice recognition system recognises given phrases.
@@ -56,3 +58,16 @@ For more information on voice recognition, see: [Advanced guide](#advanced-guide
 ```
 
 ## Advanced guide
+
+## Overview of robot commands
+
+### Motor
+
+### Touch sensor
+
+### Light sensor
+
+### Sound sensor
+
+### Ultrasonic sensor
+

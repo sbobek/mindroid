@@ -1,14 +1,16 @@
 package geist.re.mindlib.listeners;
 
 import geist.re.mindlib.events.Event;
+import geist.re.mindlib.events.LightStateEvent;
 
 /**
  * Created by sbk on 09.03.17.
  */
 
-public class LightSensorListener extends RobotListener {
+public abstract class LightSensorListener extends RobotListener {
     @Override
     protected void onEventOccurred(Event e) {
-
+        onEventOccurred((LightStateEvent)e);
     }
+    public abstract void onEventOccurred(LightStateEvent e);
 }

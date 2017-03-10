@@ -47,7 +47,6 @@ public class RobotService extends Service {
     private ConnectThread mConnectThread;
     private ConnectedThread mConnectedThread;
     private int mConnState;
-    private int mOperState;
 
     private LinkedList<RobotTask> robotTaskQueue = new LinkedList<>();
     private LinkedList<RobotQueryTask> robotQueryQueue = new LinkedList<>();

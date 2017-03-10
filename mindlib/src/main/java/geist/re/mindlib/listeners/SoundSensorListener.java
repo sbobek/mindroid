@@ -9,7 +9,7 @@ import geist.re.mindlib.events.SoundStateEvent;
 
 public abstract class SoundSensorListener extends RobotListener {
     @Override
-    protected void onEventOccurred(Event e) {
+    public void onEventOccurred(Event e) {
         onEventOccurred((SoundStateEvent)e);
     }
     public abstract void onEventOccurred(SoundStateEvent e);

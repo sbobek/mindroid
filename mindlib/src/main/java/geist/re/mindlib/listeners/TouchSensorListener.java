@@ -9,7 +9,7 @@ import geist.re.mindlib.events.TouchStateEvent;
 
 public abstract class TouchSensorListener extends RobotListener {
     @Override
-    protected void onEventOccurred(Event e) {
+    public void onEventOccurred(Event e) {
         onEventOccurred((TouchStateEvent)e);
     }
     public abstract void onEventOccurred(TouchStateEvent e);

@@ -9,7 +9,7 @@ import geist.re.mindlib.events.UltrasonicStateEvent;
 
 public abstract class UltrasonicSensorListener extends RobotListener {
     @Override
-    protected void onEventOccurred(Event e) {
+    public void onEventOccurred(Event e) {
         onEventOccurred((UltrasonicStateEvent)e);
     }
     public abstract void onEventOccurred(UltrasonicStateEvent e);

@@ -9,7 +9,7 @@ import geist.re.mindlib.events.LightStateEvent;
 
 public abstract class LightSensorListener extends RobotListener {
     @Override
-    protected void onEventOccurred(Event e) {
+    public void onEventOccurred(Event e) {
         onEventOccurred((LightStateEvent)e);
     }
     public abstract void onEventOccurred(LightStateEvent e);

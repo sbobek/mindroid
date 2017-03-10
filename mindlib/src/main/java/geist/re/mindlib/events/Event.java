@@ -7,11 +7,14 @@ package geist.re.mindlib.events;
 public abstract class Event {
     public static final int IDX_TELEGRAM_TYPE=2;
     public static final int IDX_RESPONSE_TYPE=3;
+    public static final int IDX_SENSOR_PORT=5;
 
 
     public static final byte TELEGRAM_RESPONSE = 0x02;
     public static final byte RESPONSE_TYPE_GETOUTPUTSTATE = 0x06;
     public static final byte RESPONSE_TYPE_GETINPUTVALUES = 0x07;
+
+
 
     protected byte []  data;
     protected int mType;

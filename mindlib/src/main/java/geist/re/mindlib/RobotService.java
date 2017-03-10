@@ -19,9 +19,17 @@ import java.util.Set;
 import java.util.UUID;
 
 import geist.re.mindlib.events.Event;
+import geist.re.mindlib.events.LightStateEvent;
 import geist.re.mindlib.events.MotorStateEvent;
+import geist.re.mindlib.events.SoundStateEvent;
+import geist.re.mindlib.events.TouchStateEvent;
+import geist.re.mindlib.events.UltrasonicStateEvent;
 import geist.re.mindlib.exceptions.TelegramTypeException;
+import geist.re.mindlib.hardware.LightSensor;
 import geist.re.mindlib.hardware.Motor;
+import geist.re.mindlib.hardware.SoundSensor;
+import geist.re.mindlib.hardware.TouchSensor;
+import geist.re.mindlib.hardware.UltrasonicSensor;
 import geist.re.mindlib.tasks.MotorTask;
 import geist.re.mindlib.tasks.RobotQueryTask;
 import geist.re.mindlib.tasks.RobotTask;
@@ -56,6 +64,10 @@ public class RobotService extends Service {
 
 
     public Motor motorA,motorB,motorC;
+    public LightSensor lightSensor;
+    public TouchSensor touchSensor;
+    public SoundSensor soundSensor;
+    public UltrasonicSensor ultrasonicSensor;
 
     private Binder mRobotBinder = new RobotBinder();
 
@@ -384,6 +396,17 @@ public class RobotService extends Service {
             switch(rawResponse[Event.IDX_RESPONSE_TYPE]){
                 case Event.RESPONSE_TYPE_GETOUTPUTSTATE:
                     return new MotorStateEvent(rawResponse);
+                case Event.RESPONSE_TYPE_GETINPUTVALUES:
+                    if(lightSensor != null && lightSensor.getPort() == rawResponse[Event.IDX_SENSOR_PORT]){
+                        return new LightStateEvent(rawResponse);
+                    }else if(touchSensor != null && touchSensor.getPort() == rawResponse[Event.IDX_SENSOR_PORT]){
+                        return new TouchStateEvent(rawResponse);
+                    }else if(soundSensor != null && soundSensor.getPort() == rawResponse[Event.IDX_SENSOR_PORT]){
+                        return new SoundStateEvent(rawResponse);
+                    }else if(ultrasonicSensor != null && ultrasonicSensor.getPort() == rawResponse[Event.IDX_SENSOR_PORT]){
+                        return new UltrasonicStateEvent(rawResponse);
+                    }
+                    break;
                 default:
                     Log.d(TAG, "Unknown telegram");
 

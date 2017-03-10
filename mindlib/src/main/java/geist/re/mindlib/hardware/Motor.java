@@ -70,7 +70,7 @@ public class Motor {
         MotorTask rmt = new MotorTask(this);
         rmt.setPowerSetPoint((byte)speed);
         rmt.setTachoLimit(angle);
-        registerMotorStateListener(motorStateListener,MOTOR_STATE_UPDATE_RATE);
+        registerListener(motorStateListener,MOTOR_STATE_UPDATE_RATE);
         return rmt;
     }
 
@@ -82,12 +82,12 @@ public class Motor {
     public MotorTask stop(){
         MotorTask rmt = new MotorTask(this);
         rmt.setPowerSetPoint((byte)0);
-        unregisterMotorStateListener();
+        unregisterListener();
         setState(STATE_STOPPED);
         return rmt;
     }
 
-    public synchronized void registerMotorStateListener(MotorStateListener msl, long rate){
+    public synchronized void registerListener(MotorStateListener msl, long rate){
         if(motorStateListener != null){
             motorStateQueryTimer.cancel();
             motorStateQueryTimer = new Timer();
@@ -103,7 +103,7 @@ public class Motor {
 
     }
 
-    public synchronized void unregisterMotorStateListener(){
+    public synchronized void unregisterListener(){
         motorStateListener = null;
         motorStateQueryTimer.cancel();
     }

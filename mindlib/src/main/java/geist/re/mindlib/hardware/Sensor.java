@@ -1,13 +1,29 @@
 package geist.re.mindlib.hardware;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
+import geist.re.mindlib.RobotService;
+import geist.re.mindlib.events.Event;
+import geist.re.mindlib.listeners.RobotListener;
+import geist.re.mindlib.tasks.SensorStateQueryTask;
+
 /**
  * Created by sbk on 10.03.17.
  */
 
 public abstract class Sensor {
+    protected static final String TAG = "Motor";
+
+    protected final RobotService owner;
+
     private byte port;
     private byte mode;
     private byte type;
+
+    protected Timer stateQueryTimer;
+    protected Event currentStateUpdate;
+    protected RobotListener stateListener;
 
     public enum Port {
         ONE((byte)0x01),
@@ -52,10 +68,14 @@ public abstract class Sensor {
     }
 
 
-    public Sensor(byte port, byte mode, byte type) {
+
+
+    public Sensor(RobotService owner, byte port, byte mode, byte type) {
+        this.owner = owner;
         this.port = port;
         this.mode = mode;
         this.type = type;
+        stateQueryTimer = new Timer();
     }
 
     public byte getPort() {
@@ -69,4 +89,27 @@ public abstract class Sensor {
     public byte getType() {
         return type;
     }
+
+    protected synchronized void registerListener(final Sensor s, RobotListener rsl, long rate){
+        if(stateListener != null){
+             stateQueryTimer.cancel();
+             stateQueryTimer = new Timer();
+        }
+        currentStateUpdate = null;
+        stateListener =rsl;
+         stateQueryTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                owner.addToQueryQueue(new SensorStateQueryTask(s));
+            }
+        },0,rate);
+
+    }
+
+    public synchronized void unregisterListener(){
+        stateListener = null;
+        stateQueryTimer.cancel();
+    }
+
+    public abstract void pushSensorStateEvent(Event event);
 }

@@ -9,6 +9,7 @@ import geist.re.mindlib.RobotService;
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.LightStateEvent;
 import geist.re.mindlib.events.SoundStateEvent;
+import geist.re.mindlib.exceptions.SensorDisconnectedException;
 import geist.re.mindlib.listeners.LightSensorListener;
 import geist.re.mindlib.listeners.SoundSensorListener;
 import geist.re.mindlib.tasks.SensorStateQueryTask;
@@ -18,42 +19,34 @@ import geist.re.mindlib.tasks.SensorStateQueryTask;
  */
 
 public class SoundSensor extends Sensor{
-    public enum Type{
-        /**
-         * Sound in DB units
-         */
-        SOUND_DB((byte)0x07),
-        /**
-         * Sound in DBA units
-         */
-        SOUND_DBA((byte)0x08);
 
-        private byte val;
-        Type(byte val){
-            this.val = val;
-        }
-
-        public static Type valueOf(byte raw){
-            for(Type t : Type.values()){
-                if(t.getRaw() == raw){
-                    return t;
-                }
-            }
-            return null;
-        }
-
-        public byte getRaw() {
-            return val;
-        }
+    public SoundSensor(RobotService owner){
+        super(owner);
     }
 
     public SoundSensor(RobotService owner, Port port, Mode mode, Type type) {
-        super(owner, port.getRaw(), mode.getRaw(), type.val);
+        super(owner, port.getRaw(), mode.getRaw(), type.getRaw());
+    }
+
+    public synchronized void connect(Port p, Mode m, Type t){
+        this.port = p.getRaw();
+        this.mode = m.getRaw();
+        this.type = t.getRaw();
+    }
+
+    public synchronized void connect(Port p, Type t){
+        this.port = p.getRaw();
+        this.mode = Mode.RAWMODE.getRaw();
+        this.type = t.getRaw();
+    }
+
+    public synchronized void disconnet(){
+        unregisterListener();
+        this.port = Port.DISCONNECTED.getRaw();
     }
 
 
-
-    public synchronized void registerListener(SoundSensorListener ssl, long rate){
+    public synchronized void registerListener(SoundSensorListener ssl, long rate) throws SensorDisconnectedException {
         registerListener(this,ssl,rate);
     }
 

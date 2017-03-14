@@ -28,6 +28,7 @@ import edu.cmu.pocketsphinx.Hypothesis;
 import edu.cmu.pocketsphinx.RecognitionListener;
 import edu.cmu.pocketsphinx.SpeechRecognizer;
 import edu.cmu.pocketsphinx.SpeechRecognizerSetup;
+import geist.re.mindlib.exceptions.SensorDisconnectedException;
 
 
 public abstract class RobotControlActivity extends AppCompatActivity implements
@@ -216,7 +217,7 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
         switchSearch(ON_HOLD);
     }
 
-    public void commandProgram(){
+    public void commandProgram() throws SensorDisconnectedException {
         if(robot == null) return;
     }
     public void onVoiceCommand(String message){

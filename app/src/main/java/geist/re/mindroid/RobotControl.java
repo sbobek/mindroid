@@ -17,7 +17,15 @@ import android.widget.Toast;
 
 import geist.re.mindlib.RobotControlActivity;
 import geist.re.mindlib.RobotService;
+import geist.re.mindlib.events.LightStateEvent;
+import geist.re.mindlib.events.TouchStateEvent;
+import geist.re.mindlib.exceptions.SensorDisconnectedException;
+import geist.re.mindlib.hardware.LightSensor;
 import geist.re.mindlib.hardware.Motor;
+import geist.re.mindlib.hardware.Sensor;
+import geist.re.mindlib.hardware.TouchSensor;
+import geist.re.mindlib.listeners.LightSensorListener;
+import geist.re.mindlib.listeners.TouchSensorListener;
 
 public class RobotControl extends RobotControlActivity {
     private static final String TAG = "ControlApp";
@@ -44,7 +52,7 @@ public class RobotControl extends RobotControlActivity {
     /**************************************************************/
 
     @Override
-    public void commandProgram(){
+    public void commandProgram() throws SensorDisconnectedException {
         super.commandProgram();
         /*************** START YOUR PROGRAM HERE ***************/
         robot.executeMotorTask(robot.motorA.run(10,360*3));
@@ -53,6 +61,13 @@ public class RobotControl extends RobotControlActivity {
             Log.d(TAG, "Waiting....");
         }
         robot.executeMotorTask(robot.motorA.stop());
+        robot.touchSensor.connect(Sensor.Port.ONE);
+        robot.touchSensor.registerListener(new TouchSensorListener() {
+            @Override
+            public void onEventOccurred(TouchStateEvent e) {
+                //TODO
+            }
+        },200);
         //robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
         //pause(1000);
         //robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());
@@ -69,21 +84,7 @@ public class RobotControl extends RobotControlActivity {
             robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
         }else if(message.equals("stop")){
             robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());
-        }else if(message.equals("destroy yourself")){
-            robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(-30));
-            stopRecognizer();
-            int i=0;
-            while(i < 10) {
-                i++;
-                playSound(ERROR);
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }if(message.equals("run backward")) {
+        }else if(message.equals("run backward")) {
             robot.executeSyncTwoMotorTask(robot.motorA.run(-30), robot.motorB.run(-30));
         }else{
             Log.d(TAG, "Received wrong command: "+message);
@@ -189,7 +190,11 @@ public class RobotControl extends RobotControlActivity {
         new AsyncTask<Void, Void, Exception>(){
             @Override
             protected Exception doInBackground(Void... voids) {
-                commandProgram();
+                try {
+                    commandProgram();
+                } catch (SensorDisconnectedException e) {
+                    e.printStackTrace();
+                }
                 return null;
             }
         }.execute();

@@ -28,6 +28,7 @@ import geist.re.mindlib.events.UltrasonicStateEvent;
 import geist.re.mindlib.exceptions.TelegramTypeException;
 import geist.re.mindlib.hardware.LightSensor;
 import geist.re.mindlib.hardware.Motor;
+import geist.re.mindlib.hardware.Sensor;
 import geist.re.mindlib.hardware.SoundSensor;
 import geist.re.mindlib.hardware.TouchSensor;
 import geist.re.mindlib.hardware.UltrasonicSensor;
@@ -77,6 +78,10 @@ public class RobotService extends Service {
         motorA = new Motor(Motor.A,this);
         motorB = new Motor(Motor.B,this);
         motorC = new Motor(Motor.C,this);
+        lightSensor = new LightSensor(this);
+        touchSensor = new TouchSensor(this);
+        soundSensor = new SoundSensor(this);
+        ultrasonicSensor = new UltrasonicSensor(this);
 
         taskExecutor.start();
         queryExecutor.start();
@@ -92,6 +97,8 @@ public class RobotService extends Service {
         }
 
     }
+
+
 
     public synchronized void addToQueryQueue(RobotQueryTask rqt){
         robotQueryQueue.add(rqt);

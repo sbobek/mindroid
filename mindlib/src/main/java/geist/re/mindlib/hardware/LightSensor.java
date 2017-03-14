@@ -9,6 +9,7 @@ import geist.re.mindlib.RobotService;
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.LightStateEvent;
 import geist.re.mindlib.events.MotorStateEvent;
+import geist.re.mindlib.exceptions.SensorDisconnectedException;
 import geist.re.mindlib.listeners.LightSensorListener;
 import geist.re.mindlib.tasks.SensorStateQueryTask;
 
@@ -17,46 +18,36 @@ import geist.re.mindlib.tasks.SensorStateQueryTask;
  */
 
 public class LightSensor extends Sensor{
-    public enum Type{
-        /**
-         * Led on a sensor is on
-         */
-        LIGHT_ACTIVE((byte)0x05),
-        /**
-         * Led on a sensor is off
-         */
-        LIGHT_INCTIVE((byte)0x06);
 
-        private byte val;
-
-        public static Type valueOf(byte raw){
-            for(Type t : Type.values()){
-                if(t.getRaw() == raw){
-                    return t;
-                }
-            }
-            return null;
-        }
-
-
-
-        Type(byte val){
-            this.val = val;
-        }
-
-        public byte getRaw() {
-            return val;
-        }
+    public LightSensor(RobotService owner){
+        super(owner);
     }
-
-
-
 
     public LightSensor(RobotService owner, Port port, Mode mode, Type type) {
-        super(owner, port.getRaw(), mode.getRaw(), type.val);
+        super(owner, port.getRaw(), mode.getRaw(), type.getRaw());
     }
 
-    public synchronized void registerListener(LightSensorListener lsl, long rate){
+
+    public synchronized void connect(Port p, Mode m, Type t){
+        this.port = p.getRaw();
+        this.mode = m.getRaw();
+        this.type = t.getRaw();
+    }
+
+    public synchronized void connect(Port p, Type t){
+        this.port = p.getRaw();
+        this.mode = Mode.RAWMODE.getRaw();
+        this.type = t.getRaw();
+    }
+
+    public synchronized void disconnet(){
+        unregisterListener();
+        this.port = Port.DISCONNECTED.getRaw();
+    }
+
+
+
+    public synchronized void registerListener(LightSensorListener lsl, long rate) throws SensorDisconnectedException {
         registerListener(this,lsl,rate);
     }
 

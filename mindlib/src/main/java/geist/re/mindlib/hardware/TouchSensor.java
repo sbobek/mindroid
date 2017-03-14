@@ -9,6 +9,7 @@ import geist.re.mindlib.RobotService;
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.SoundStateEvent;
 import geist.re.mindlib.events.TouchStateEvent;
+import geist.re.mindlib.exceptions.SensorDisconnectedException;
 import geist.re.mindlib.listeners.LightSensorListener;
 import geist.re.mindlib.listeners.SoundSensorListener;
 import geist.re.mindlib.listeners.TouchSensorListener;
@@ -19,38 +20,33 @@ import geist.re.mindlib.tasks.SensorStateQueryTask;
  */
 
 public class TouchSensor extends Sensor{
-    public enum Type{
-        /**
-         * There is only one possibility
-         */
-        SWITCH((byte)0x01);
 
-        private byte val;
-
-        public static Type valueOf(byte raw){
-            for(Type t : Type.values()){
-                if(t.getRaw() == raw){
-                    return t;
-                }
-            }
-            return null;
-        }
-
-        Type(byte val){
-            this.val = val;
-        }
-
-        public byte getRaw() {
-            return val;
-        }
+    public TouchSensor(RobotService owner){
+        super(owner);
     }
-
 
     public TouchSensor(RobotService owner, Port port, Mode mode, Type type) {
-        super(owner, port.getRaw(), mode.getRaw(), type.val);
+        super(owner, port.getRaw(), mode.getRaw(), type.getRaw());
     }
 
-    public synchronized void registerListener(TouchSensorListener tsl, long rate){
+    public synchronized void connect(Port p, Mode m, Type t){
+        this.port = p.getRaw();
+        this.mode = m.getRaw();
+        this.type = t.getRaw();
+    }
+
+    public synchronized void connect(Port p){
+        this.port = p.getRaw();
+        this.mode = Mode.RAWMODE.getRaw();
+        this.type = Type.SWITCH.getRaw();
+    }
+
+    public synchronized void disconnet(){
+        unregisterListener();
+        this.port = Port.DISCONNECTED.getRaw();
+    }
+
+    public synchronized void registerListener(TouchSensorListener tsl, long rate) throws SensorDisconnectedException {
         registerListener(this,tsl,rate);
     }
 

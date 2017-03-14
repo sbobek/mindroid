@@ -5,6 +5,7 @@ import java.util.TimerTask;
 
 import geist.re.mindlib.RobotService;
 import geist.re.mindlib.events.Event;
+import geist.re.mindlib.exceptions.SensorDisconnectedException;
 import geist.re.mindlib.listeners.RobotListener;
 import geist.re.mindlib.tasks.SensorStateQueryTask;
 
@@ -17,19 +18,67 @@ public abstract class Sensor {
 
     protected final RobotService owner;
 
-    private byte port;
-    private byte mode;
-    private byte type;
+    protected byte port;
+    protected byte mode;
+    protected byte type;
 
     protected Timer stateQueryTimer;
     protected Event currentStateUpdate;
     protected RobotListener stateListener;
 
+    public enum Type{
+        /**
+         * There is only one possibility for touch sensor
+         */
+        SWITCH((byte)0x01),
+        /**
+         * Led on a sensor is on
+         */
+        LIGHT_ACTIVE((byte)0x05),
+        /**
+         * Led on a sensor is off
+         */
+        LIGHT_INCTIVE((byte)0x06),
+        /**
+         * Sound in DB units
+         */
+        SOUND_DB((byte)0x07),
+        /**
+         * Sound in DBA units
+         */
+        SOUND_DBA((byte)0x08),
+        /**
+         * There is only one possibility for ultrasonic sensor
+         */
+        LOWSPEED_9V((byte)0x0B);
+
+        private byte val;
+        Type(byte val){
+            this.val = val;
+        }
+
+        public static Type valueOf(byte raw){
+            for(Type t : Type.values()){
+                if(t.getRaw() == raw){
+                    return t;
+                }
+            }
+            return null;
+        }
+
+
+        public byte getRaw() {
+            return val;
+        }
+    }
+
+
     public enum Port {
         ONE((byte)0x01),
         TWO((byte)0x02),
         THREE((byte)0x03),
-        FOUR((byte)0x04);
+        FOUR((byte)0x04),
+        DISCONNECTED((byte)-0x01);
 
         private byte val;
 
@@ -86,6 +135,12 @@ public abstract class Sensor {
     }
 
 
+    public Sensor(RobotService owner){
+        this.owner = owner;
+        this.port = Port.DISCONNECTED.getRaw();
+        stateQueryTimer = new Timer();
+
+    }
 
 
     public Sensor(RobotService owner, byte port, byte mode, byte type) {
@@ -116,7 +171,10 @@ public abstract class Sensor {
         return type;
     }
 
-    protected synchronized void registerListener(final Sensor s, RobotListener rsl, long rate){
+    protected synchronized void registerListener(final Sensor s, RobotListener rsl, long rate) throws SensorDisconnectedException {
+        if(s.getPort() == Port.DISCONNECTED){
+            throw new SensorDisconnectedException("Cannot register listener to disconnected senor. Connect sensor first.");
+        }
         if(stateListener != null){
              stateQueryTimer.cancel();
              stateQueryTimer = new Timer();

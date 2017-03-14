@@ -62,11 +62,18 @@ For more information on voice recognition, see: [Advanced guide](#advanced-guide
 }
 ```
 
-## Advanced guide
 
 ## Overview of robot commands
+All hardware that can be connected to NXT brick is accessible via ```public final``` variables in [RobotService](https://github.com/sbobek/mindroid/blob/master/mindlib/src/main/java/geist/re/mindlib/RobotService.java) class
 
 ### Motor
+NXT allows to connect three motors to ports called A, B and C.
+They are accessible respectively by fileds named ```motorA```, ```motorB``` and ```motorC```.
+
+There are three basic commands you can send to motor:
+  * Run motor forward or backward for infinite period of time with a given speed
+  * Rotate a motor forward or backward through a given angle with a given speed
+  * Stop a motor
 
 ### Touch sensor
 
@@ -76,3 +83,4 @@ For more information on voice recognition, see: [Advanced guide](#advanced-guide
 
 ### Ultrasonic sensor
 
+## Advanced guide

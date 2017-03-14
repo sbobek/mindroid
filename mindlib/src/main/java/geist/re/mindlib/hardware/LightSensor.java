@@ -28,8 +28,24 @@ public class LightSensor extends Sensor{
         LIGHT_INCTIVE((byte)0x06);
 
         private byte val;
+
+        public static Type valueOf(byte raw){
+            for(Type t : Type.values()){
+                if(t.getRaw() == raw){
+                    return t;
+                }
+            }
+            return null;
+        }
+
+
+
         Type(byte val){
             this.val = val;
+        }
+
+        public byte getRaw() {
+            return val;
         }
     }
 

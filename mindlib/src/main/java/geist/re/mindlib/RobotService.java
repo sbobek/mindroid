@@ -21,6 +21,7 @@ import java.util.UUID;
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.LightStateEvent;
 import geist.re.mindlib.events.MotorStateEvent;
+import geist.re.mindlib.events.SensorStateEvent;
 import geist.re.mindlib.events.SoundStateEvent;
 import geist.re.mindlib.events.TouchStateEvent;
 import geist.re.mindlib.events.UltrasonicStateEvent;
@@ -397,13 +398,13 @@ public class RobotService extends Service {
                 case Event.RESPONSE_TYPE_GETOUTPUTSTATE:
                     return new MotorStateEvent(rawResponse);
                 case Event.RESPONSE_TYPE_GETINPUTVALUES:
-                    if(lightSensor != null && lightSensor.getPort() == rawResponse[Event.IDX_SENSOR_PORT]){
+                    if(lightSensor != null && lightSensor.getRawPort() == rawResponse[Event.IDX_INPUT_PORT]){
                         return new LightStateEvent(rawResponse);
-                    }else if(touchSensor != null && touchSensor.getPort() == rawResponse[Event.IDX_SENSOR_PORT]){
+                    }else if(touchSensor != null && touchSensor.getRawPort() == rawResponse[Event.IDX_INPUT_PORT]){
                         return new TouchStateEvent(rawResponse);
-                    }else if(soundSensor != null && soundSensor.getPort() == rawResponse[Event.IDX_SENSOR_PORT]){
+                    }else if(soundSensor != null && soundSensor.getRawPort() == rawResponse[Event.IDX_INPUT_PORT]){
                         return new SoundStateEvent(rawResponse);
-                    }else if(ultrasonicSensor != null && ultrasonicSensor.getPort() == rawResponse[Event.IDX_SENSOR_PORT]){
+                    }else if(ultrasonicSensor != null && ultrasonicSensor.getRawPort() == rawResponse[Event.IDX_INPUT_PORT]){
                         return new UltrasonicStateEvent(rawResponse);
                     }
                     break;
@@ -428,6 +429,18 @@ public class RobotService extends Service {
                     }else{
                         motorC.pushMotorStateEvent(event);
                         Log.d(TAG, "Notifying Motor A listener");
+                    }
+                    break;
+                case Event.RESPONSE_TYPE_GETINPUTVALUES:
+                    SensorStateEvent s = (SensorStateEvent)event;
+                    if(lightSensor != null && lightSensor.getPort() == s.getPort()){
+                        lightSensor.pushSensorStateEvent(s);
+                    }else if(touchSensor != null && touchSensor.getPort() ==  s.getPort()){
+                        touchSensor.pushSensorStateEvent(s);
+                    }else if(soundSensor != null && soundSensor.getPort() ==  s.getPort()){
+                        soundSensor.pushSensorStateEvent(s);
+                    }else if(ultrasonicSensor != null && ultrasonicSensor.getPort() ==  s.getPort()){
+                        ultrasonicSensor.pushSensorStateEvent(s);
                     }
                     break;
             }

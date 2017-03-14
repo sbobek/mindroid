@@ -33,6 +33,15 @@ public abstract class Sensor {
 
         private byte val;
 
+        public static Port valueOf(byte raw){
+            for(Port p : Port.values()){
+                if(p.getRaw() == raw){
+                    return p;
+                }
+            }
+            return null;
+        }
+
         Port(byte val){
             this.val = val;
         }
@@ -62,6 +71,15 @@ public abstract class Sensor {
             this.val = val;
         }
 
+        public static Mode valueOf(byte raw){
+            for(Mode v : Mode.values()){
+                if(v.getRaw() == raw){
+                    return v;
+                }
+            }
+            return null;
+        }
+
         public byte getRaw(){
             return val;
         }
@@ -78,15 +96,23 @@ public abstract class Sensor {
         stateQueryTimer = new Timer();
     }
 
-    public byte getPort() {
+    public Port getPort(){
+        return Port.valueOf(getRawType());
+    }
+
+    public Mode getMode(){
+        return Mode.valueOf(getRawMode());
+    }
+
+    public byte getRawPort() {
         return port;
     }
 
-    public byte getMode() {
+    public byte getRawMode() {
         return mode;
     }
 
-    public byte getType() {
+    public byte getRawType() {
         return type;
     }
 

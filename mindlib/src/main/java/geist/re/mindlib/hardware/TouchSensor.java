@@ -26,8 +26,22 @@ public class TouchSensor extends Sensor{
         SWITCH((byte)0x01);
 
         private byte val;
+
+        public static Type valueOf(byte raw){
+            for(Type t : Type.values()){
+                if(t.getRaw() == raw){
+                    return t;
+                }
+            }
+            return null;
+        }
+
         Type(byte val){
             this.val = val;
+        }
+
+        public byte getRaw() {
+            return val;
         }
     }
 

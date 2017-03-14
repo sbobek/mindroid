@@ -8,8 +8,6 @@ import geist.re.mindlib.utils.BluetoothProtocolUtils;
  */
 
 public class MotorStateEvent extends Event {
-    public static final int IDX_STATUS = 4;
-    public static final int IDX_MOTOR_PORT = 5;
     public static final int IDX_POWER = 6;
     public static final int IDX_MODE = 7;
     public static final int IDX_REGULATION_MODE = 8;
@@ -52,7 +50,7 @@ public class MotorStateEvent extends Event {
         }else{
             status = false;
         }
-        motor = telegram[IDX_MOTOR_PORT];
+        motor = telegram[IDX_INPUT_PORT];
         power = telegram[IDX_POWER];
         mode = telegram[IDX_MODE];
         turnRatio = telegram[IDX_TURN_RATIO];

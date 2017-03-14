@@ -30,6 +30,20 @@ public class UltrasonicSensor extends Sensor{
         Type(byte val){
             this.val = val;
         }
+
+        public static Type valueOf(byte raw){
+            for(Type t : Type.values()){
+                if(t.getRaw() == raw){
+                    return t;
+                }
+            }
+            return null;
+        }
+
+
+        public byte getRaw() {
+            return val;
+        }
     }
 
 

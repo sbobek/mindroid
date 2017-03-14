@@ -65,11 +65,11 @@ public class RobotService extends Service {
 
 
 
-    public Motor motorA,motorB,motorC;
-    public LightSensor lightSensor;
-    public TouchSensor touchSensor;
-    public SoundSensor soundSensor;
-    public UltrasonicSensor ultrasonicSensor;
+    public final Motor motorA,motorB,motorC;
+    public final LightSensor lightSensor;
+    public final TouchSensor touchSensor;
+    public final SoundSensor soundSensor;
+    public final UltrasonicSensor ultrasonicSensor;
 
     private Binder mRobotBinder = new RobotBinder();
 

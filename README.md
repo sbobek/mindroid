@@ -7,10 +7,15 @@ Main features:
   * Robot service (thread safe) for advanced programmers.
   
 To see the available robot commands and their documentations, see [Overview of robot commands](#overview-of-robot-commands)
+
   
 ## Bgginers guide
 The simplest way to start programing is to clone the repository and open the [RobotControl](https://github.com/sbobek/mindroid/blob/master/app/src/main/java/geist/re/mindroid/RobotControl.java) class that is located in the **app** module.
-There are two functions: 
+
+To use it with your NXT brick, you have to pair your mobile device with LegoMindstorm using sytem Bluetooth manager.
+After that, you have to change the  ```private static final String ROBOT_NAME = "YOUR_NXT_NAME";``` to point to the name of your NXT.
+
+There are two functions in the [RobotControl](https://github.com/sbobek/mindroid/blob/master/app/src/main/java/geist/re/mindroid/RobotControl.java) class that allows you to control NXT brick. These are: 
   * ```commandProgram()``` -- here you can write a regular program that will be executed when you hit the play button on your mobile phone.
   * ```onVoiceCommand()``` -- here you can place any code that should be executed when voice recognition system recognises given phrases.
   

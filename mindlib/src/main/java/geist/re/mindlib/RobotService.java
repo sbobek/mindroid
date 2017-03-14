@@ -28,7 +28,6 @@ import geist.re.mindlib.events.UltrasonicStateEvent;
 import geist.re.mindlib.exceptions.TelegramTypeException;
 import geist.re.mindlib.hardware.LightSensor;
 import geist.re.mindlib.hardware.Motor;
-import geist.re.mindlib.hardware.Sensor;
 import geist.re.mindlib.hardware.SoundSensor;
 import geist.re.mindlib.hardware.TouchSensor;
 import geist.re.mindlib.hardware.UltrasonicSensor;
@@ -424,7 +423,7 @@ public class RobotService extends Service {
 
         public void notifyListeners(Event event){
             //motor listeners and robot-user-listeners
-            switch(event.getType()){
+            switch(event.getResponseType()){
                 case Event.RESPONSE_TYPE_GETOUTPUTSTATE:
                     MotorStateEvent mse = (MotorStateEvent)event;
                     if(mse.getMotor() == Motor.A){

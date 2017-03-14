@@ -16,15 +16,15 @@ public abstract class Event {
     public static final byte RESPONSE_TYPE_GETINPUTVALUES = 0x07;
 
     protected byte []  data;
-    protected int mType;
+    protected int responseType;
 
     public Event(byte [] rawData){
         data = rawData;
-        mType = rawData[IDX_RESPONSE_TYPE];
+        responseType = rawData[IDX_RESPONSE_TYPE];
     }
 
-    public int getType(){
-        return mType;
+    protected int getResponseType(){
+        return responseType;
     }
 
     @Override

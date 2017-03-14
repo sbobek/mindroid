@@ -11,7 +11,7 @@ import geist.re.mindlib.utils.BluetoothProtocolUtils;
 public class SensorStateEvent extends Event {
     public static final int IDX_VALID = 6;
     public static final int IDX_CALIBRATED = 7;
-    public static final int IDX_SENSOR_TYPE = 8; // this is resolved on the level of particular event
+    public static final int IDX_SENSOR_TYPE = 8;
     public static final int IDX_SENSOR_MODE = 9;
     public static final int IDX_RAW_AD_START = 10;
     public static final int IDX_RAW_AD_END = 11;
@@ -22,8 +22,11 @@ public class SensorStateEvent extends Event {
     public static final int IDX_CALIB_VAL_START = 16;
     public static final int IDX_CALIB_VAL_END = 17;
 
+    public static final int NORMALIZED_MAX_VALUE = 1024;
+
 
     private final Sensor.Port port;
+    private final Sensor.Type type;
     private final boolean status;
     private final boolean valid;
     private final boolean calibrated;
@@ -46,6 +49,7 @@ public class SensorStateEvent extends Event {
         calibrated = (telegram[IDX_CALIBRATED] == 0 ? true : false);
 
         port = Sensor.Port.valueOf(telegram[IDX_INPUT_PORT]);
+        type = Sensor.Type.valueOf(telegram[IDX_SENSOR_TYPE]);
 
         mode = Sensor.Mode.valueOf(telegram[IDX_SENSOR_MODE]);
         byte temp[] = new byte[4];
@@ -104,5 +108,9 @@ public class SensorStateEvent extends Event {
 
     public int getCalibratedOutput() {
         return calibratedOutput;
+    }
+
+    public Sensor.Type getType() {
+        return type;
     }
 }

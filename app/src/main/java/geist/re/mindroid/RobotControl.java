@@ -60,12 +60,15 @@ public class RobotControl extends RobotControlActivity {
             pause(500);
             Log.d(TAG, "Waiting....");
         }
-        robot.executeMotorTask(robot.motorA.stop());
+
+
         robot.touchSensor.connect(Sensor.Port.ONE);
         robot.touchSensor.registerListener(new TouchSensorListener() {
             @Override
             public void onEventOccurred(TouchStateEvent e) {
-                //TODO
+                if(e.isPressed()){
+                    robot.executeMotorTask(robot.motorA.run(30,360*3));
+                }
             }
         },200);
         //robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));

@@ -9,11 +9,17 @@ import geist.re.mindlib.hardware.Sensor;
  */
 
 public class LightStateEvent extends SensorStateEvent {
-
-    LightSensor.Type type;
-
     public LightStateEvent(byte[] telegram) throws TelegramTypeException {
         super(telegram);
-        type = LightSensor.Type.valueOf(telegram[IDX_SENSOR_TYPE]);
     }
+
+    /**
+     * Returns light intensity in percents.
+     * It uses {@link #getNormalizedOutput()} function to calculate the intensity.
+     * @return light intensity
+     */
+    public double getLightIntensity(){
+        return getNormalizedOutput()/NORMALIZED_MAX_VALUE;
+    }
+
 }

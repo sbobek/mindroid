@@ -415,7 +415,11 @@ public class RobotService extends Service {
                     }
                     break;
                 default:
-                    Log.d(TAG, "Unknown telegram");
+                    String msg = "";
+                    for(byte b: rawResponse){
+                        msg+=":"+b+":";
+                    }
+                    Log.d(TAG, "Unknown telegram: "+msg);
 
             }
             return null;
@@ -431,15 +435,16 @@ public class RobotService extends Service {
                         motorA.pushMotorStateEvent(event);
                     }else if(mse.getMotor() == Motor.B){
                         motorB.pushMotorStateEvent(event);
-                        Log.d(TAG, "Notifying Motor A listener");
+                        Log.d(TAG, "Notifying Motor B listener");
                     }else{
                         motorC.pushMotorStateEvent(event);
-                        Log.d(TAG, "Notifying Motor A listener");
+                        Log.d(TAG, "Notifying Motor C listener");
                     }
                     break;
                 case Event.RESPONSE_TYPE_GETINPUTVALUES:
                     SensorStateEvent s = (SensorStateEvent)event;
                     if(lightSensor != null && lightSensor.getPort() == s.getPort()){
+                        Log.e(TAG,"lightSensor "+lightSensor.getPort().getRaw()+" = "+s.getPort().getRaw());
                         lightSensor.pushSensorStateEvent(s);
                     }else if(touchSensor != null && touchSensor.getPort() ==  s.getPort()){
                         touchSensor.pushSensorStateEvent(s);

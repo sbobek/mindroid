@@ -15,8 +15,8 @@ public class SensorStateEvent extends Event {
     public static final int IDX_SENSOR_MODE = 9;
     public static final int IDX_RAW_AD_START = 10;
     public static final int IDX_RAW_AD_END = 11;
-    public static final int IDX_NOMR_AD_START = 12;
-    public static final int IDX_NOMR_AD_END = 13;
+    public static final int IDX_NORM_AD_START = 12;
+    public static final int IDX_NORM_AD_END = 13;
     public static final int IDX_SCALED_VAL_START = 14;
     public static final int IDX_SCALED_VAL_END = 15;
     public static final int IDX_CALIB_VAL_START = 16;
@@ -57,8 +57,8 @@ public class SensorStateEvent extends Event {
         temp[1] = telegram[IDX_RAW_AD_END];
         rawOutput = BluetoothProtocolUtils.littleEndianToInteger(temp);
 
-        temp[0] = telegram[IDX_NOMR_AD_START];
-        temp[1] = telegram[IDX_NOMR_AD_END];
+        temp[0] = telegram[IDX_NORM_AD_START];
+        temp[1] = telegram[IDX_NORM_AD_END];
         normalizedOutput = BluetoothProtocolUtils.littleEndianToInteger(temp);
 
 

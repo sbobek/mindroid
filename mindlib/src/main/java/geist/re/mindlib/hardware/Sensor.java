@@ -7,6 +7,7 @@ import geist.re.mindlib.RobotService;
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.exceptions.SensorDisconnectedException;
 import geist.re.mindlib.listeners.RobotListener;
+import geist.re.mindlib.tasks.ConnectSensorTask;
 import geist.re.mindlib.tasks.SensorStateQueryTask;
 
 /**
@@ -14,7 +15,7 @@ import geist.re.mindlib.tasks.SensorStateQueryTask;
  */
 
 public abstract class Sensor {
-    protected static final String TAG = "Motor";
+    protected static final String TAG = "Sensor";
 
     protected final RobotService owner;
 
@@ -74,11 +75,11 @@ public abstract class Sensor {
 
 
     public enum Port {
-        ONE((byte)0x01),
-        TWO((byte)0x02),
-        THREE((byte)0x03),
-        FOUR((byte)0x04),
-        DISCONNECTED((byte)-0x01);
+        ONE((byte)0x00),
+        TWO((byte)0x01),
+        THREE((byte)0x02),
+        FOUR((byte)0x03),
+        DISCONNECTED((byte)0x05);
 
         private byte val;
 
@@ -151,12 +152,28 @@ public abstract class Sensor {
         stateQueryTimer = new Timer();
     }
 
+    public synchronized void connect(Port p, Mode m, Type t){
+        this.port = p.getRaw();
+        this.mode = m.getRaw();
+        this.type = t.getRaw();
+        owner.addToQueryQueue(new ConnectSensorTask(this));
+    }
+
+    public synchronized void disconnect(){
+        unregisterListener();
+        this.port = Port.DISCONNECTED.getRaw();
+    }
+
     public Port getPort(){
-        return Port.valueOf(getRawType());
+        return Port.valueOf(getRawPort());
     }
 
     public Mode getMode(){
         return Mode.valueOf(getRawMode());
+    }
+
+    public Type getType() {
+        return Type.valueOf(getRawType());
     }
 
     public byte getRawPort() {
@@ -184,7 +201,7 @@ public abstract class Sensor {
          stateQueryTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                owner.addToQueryQueue(new SensorStateQueryTask(s));
+                owner.addToQueryQueue(new SensorStateQueryTask(Sensor.this));
             }
         },0,rate);
 

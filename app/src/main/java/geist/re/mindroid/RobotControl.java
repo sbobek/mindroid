@@ -29,7 +29,7 @@ import geist.re.mindlib.listeners.TouchSensorListener;
 
 public class RobotControl extends RobotControlActivity {
     private static final String TAG = "ControlApp";
-    private static final String ROBOT_NAME = "02Bolek";
+    private static final String ROBOT_NAME = "YODA";
     private static final float VOLUME = 0.2f;
 
     FloatingActionButton start;
@@ -55,22 +55,25 @@ public class RobotControl extends RobotControlActivity {
     public void commandProgram() throws SensorDisconnectedException {
         super.commandProgram();
         /*************** START YOUR PROGRAM HERE ***************/
-        robot.executeMotorTask(robot.motorA.run(10,360*3));
+        robot.executeMotorTask(robot.motorA.run(10,360));
         while(robot.motorA.getState() == Motor.STATE_RUNNING) {
             pause(500);
             Log.d(TAG, "Waiting....");
         }
 
 
-        robot.touchSensor.connect(Sensor.Port.ONE);
+     /*   robot.touchSensor.connect(Sensor.Port.ONE);
         robot.touchSensor.registerListener(new TouchSensorListener() {
             @Override
             public void onEventOccurred(TouchStateEvent e) {
+                Log.d(TAG, "Pressed: "+e.getNormalizedOutput());
                 if(e.isPressed()){
-                    robot.executeMotorTask(robot.motorA.run(30,360*3));
+                    Log.d(TAG, "Ececuting motors again");
+                    robot.executeMotorTask(robot.motorA.run(30,360));
                 }
             }
         },200);
+        */
         //robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
         //pause(1000);
         //robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());

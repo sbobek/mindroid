@@ -128,6 +128,7 @@ public class Motor {
                 Log.d(TAG, "onStateChanged: "+currentStateUpdate.getRotationCount());
                 if(currentStateUpdate.getRotationCount() >= currentStateUpdate.getTachoLimit()){
                     setState(STATE_STOPPED);
+                    unregisterListener();
                 }else{
                     setState(STATE_RUNNING);
                 }

@@ -23,7 +23,7 @@ public abstract class Event {
         responseType = rawData[IDX_RESPONSE_TYPE];
     }
 
-    protected int getResponseType(){
+    public int getResponseType(){
         return responseType;
     }
 

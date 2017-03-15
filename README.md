@@ -67,13 +67,42 @@ For more information on voice recognition, see: [Advanced guide](#advanced-guide
 All hardware that can be connected to NXT brick is accessible via ```public final``` variables in [RobotService](https://github.com/sbobek/mindroid/blob/master/mindlib/src/main/java/geist/re/mindlib/RobotService.java) class
 
 ### Motor
+Motor implementation is located in [Motor](https://github.com/sbobek/mindroid/blob/master/mindlib/src/main/java/geist/re/mindlib/hardware/Motor.java) class.
 NXT allows to connect three motors to ports called A, B and C.
 They are accessible respectively by fileds named ```motorA```, ```motorB``` and ```motorC```.
 
 There are three basic commands you can send to motor:
-  * Run motor forward or backward for infinite period of time with a given speed
+  * Run motor forward or backward for infinite period of time with a given speed:
+  ``` java
+  //Run motor A forever with speed 50 (100 is maximum)
+  robot.executeMotorTask(robot.motorA.run(50));
+  ```
   * Rotate a motor forward or backward through a given angle with a given speed
+  ``` java
+  //Rotate motor A backwards over 360 degrees with speed 10
+  robot.executeMotorTask(robot.motorA.run(-10,360));
+  ```
   * Stop a motor
+  ``` java
+  //Stop motor A
+  robot.executeMotorTask(robot.motorA.stop());
+  ```
+  * Run/stop two or three motors at the same time (synchronized command)
+  ``` java
+  //Rotate motor A over 360 degrees with speed 30 and rotate motor B backward over 360 degrees with speed 30
+  robot.executeSyncTwoMotorTask(robot.motorA.run(30,360),robot.motorB.run(-30,360));
+  ```
+
+It is also possible to monitor motor state via updates that are sent to the motor from NXT.
+For instance to rotate motor over 360 degrees and then rotate it backwards over the same angle you can use the follwing code:
+``` java
+robot.executeMotorTask(robot.motorA.run(50,360));
+while(robot.motorA.getState() == Motor.STATE_RUNNING) {
+    pause(200);
+    Log.d(TAG, "Waiting for motor to finish rotating");
+}
+robot.executeMotorTask(robot.motorA.run(-50,360)
+```
 
 ### Touch sensor
 

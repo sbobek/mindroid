@@ -56,10 +56,6 @@ public class RobotControl extends RobotControlActivity {
         super.commandProgram();
         /*************** START YOUR PROGRAM HERE ***************/
         robot.executeMotorTask(robot.motorA.run(50));
-       // while(robot.motorA.getState() == Motor.STATE_RUNNING) {
-       //     pause(200);
-       //     Log.d(TAG, "Waiting....");
-       // }
 
 
         robot.touchSensor.connect(Sensor.Port.ONE);
@@ -72,12 +68,7 @@ public class RobotControl extends RobotControlActivity {
                     robot.executeMotorTask(robot.motorA.run(10,3*360));
                 }
             }
-        },200);
-
-        //robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
-        //pause(1000);
-        //robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());
-
+        });
     }
 
     @Override

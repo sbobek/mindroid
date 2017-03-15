@@ -6,6 +6,7 @@ import geist.re.mindlib.RobotService;
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.SoundStateEvent;
 import geist.re.mindlib.exceptions.SensorDisconnectedException;
+import geist.re.mindlib.listeners.RobotListener;
 import geist.re.mindlib.listeners.SoundSensorListener;
 
 /**
@@ -26,7 +27,9 @@ public class SoundSensor extends Sensor{
         connect(p,Mode.RAWMODE,t);
     }
 
-
+    public synchronized void registerListener(SoundSensorListener ssl) throws SensorDisconnectedException {
+        registerListener(this,ssl, RobotListener.DEFAULT_LISTENING_RATE);
+    }
 
     public synchronized void registerListener(SoundSensorListener ssl, long rate) throws SensorDisconnectedException {
         registerListener(this,ssl,rate);

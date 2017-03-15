@@ -6,6 +6,7 @@ import geist.re.mindlib.RobotService;
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.UltrasonicStateEvent;
 import geist.re.mindlib.exceptions.SensorDisconnectedException;
+import geist.re.mindlib.listeners.RobotListener;
 import geist.re.mindlib.listeners.UltrasonicSensorListener;
 
 /**
@@ -27,6 +28,9 @@ public class UltrasonicSensor extends Sensor{
         connect(p,Mode.RAWMODE,Type.LOWSPEED_9V);
     }
 
+    public synchronized void registerListener(UltrasonicSensorListener msl) throws SensorDisconnectedException {
+        registerListener(this,msl, RobotListener.DEFAULT_LISTENING_RATE);
+    }
 
     public synchronized void registerListener(UltrasonicSensorListener msl, long rate) throws SensorDisconnectedException {
         registerListener(this,msl,rate);

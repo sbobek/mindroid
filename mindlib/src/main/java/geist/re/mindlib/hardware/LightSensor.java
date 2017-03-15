@@ -7,6 +7,7 @@ import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.LightStateEvent;
 import geist.re.mindlib.exceptions.SensorDisconnectedException;
 import geist.re.mindlib.listeners.LightSensorListener;
+import geist.re.mindlib.listeners.RobotListener;
 
 /**
  * Created by sbk on 09.03.17.
@@ -26,6 +27,9 @@ public class LightSensor extends Sensor{
         connect(p, Mode.RAWMODE,t);
     }
 
+    public synchronized void registerListener(LightSensorListener lsl) throws SensorDisconnectedException {
+        registerListener(this,lsl, RobotListener.DEFAULT_LISTENING_RATE);
+    }
 
     public synchronized void registerListener(LightSensorListener lsl, long rate) throws SensorDisconnectedException {
         registerListener(this,lsl,rate);

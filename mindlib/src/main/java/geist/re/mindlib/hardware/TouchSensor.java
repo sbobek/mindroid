@@ -6,9 +6,8 @@ import geist.re.mindlib.RobotService;
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.TouchStateEvent;
 import geist.re.mindlib.exceptions.SensorDisconnectedException;
+import geist.re.mindlib.listeners.RobotListener;
 import geist.re.mindlib.listeners.TouchSensorListener;
-import geist.re.mindlib.tasks.ConnectSensorTask;
-import geist.re.mindlib.tasks.SensorStateQueryTask;
 
 /**
  * Created by sbk on 09.03.17.
@@ -27,6 +26,10 @@ public class TouchSensor extends Sensor{
 
     public synchronized void connect(Port p){
         connect(p,Mode.RAWMODE,Type.SWITCH);
+    }
+
+    public synchronized void registerListener(TouchSensorListener tsl) throws SensorDisconnectedException {
+        registerListener(this,tsl, RobotListener.DEFAULT_LISTENING_RATE);
     }
 
     public synchronized void registerListener(TouchSensorListener tsl, long rate) throws SensorDisconnectedException {

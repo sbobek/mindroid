@@ -7,5 +7,6 @@ import geist.re.mindlib.events.Event;
  */
 
 public abstract class RobotListener {
+    public static final long DEFAULT_LISTENING_RATE = 200;
     protected abstract void onEventOccurred(Event e);
 }

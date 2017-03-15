@@ -142,6 +142,6 @@ robot.touchSensor.registerListener(new TouchSensorListener() {
        });
 ```
 
-## Voice controll
+## Voice control
 ### Grammar based recognition
 ### Language model based recognition

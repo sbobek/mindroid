@@ -104,12 +104,27 @@ while(robot.motorA.getState() == Motor.STATE_RUNNING) {
 robot.executeMotorTask(robot.motorA.run(-50,360)
 ```
 
-### Touch sensor
+### Input sensors
+Updates from input sensors are received via listeners.
+First you need to connect sensor to one of four ports (physically) and via programming command:
+``` java
+robot.touchSensor.connect(Sensor.Port.ONE)
+```
 
-### Light sensor
+This **does not** allow you to get any updates from the NXT Brick.
+In order to start receiving updates, you have to register appropriate listener:
 
-### Sound sensor
+```java
+robot.touchSensor.registerListener(new TouchSensorListener() {
+          @Override
+          public void onEventOccurred(TouchStateEvent e) {
+              if(e.isPressed()){
+                  Log.d(TAG, "Obstacle, running backwards");
+                  robot.executeMotorTask(robot.motorA.run(-10,3*360));
+              }
+          }
+       });
+```
 
-### Ultrasonic sensor
-
-## Advanced guide
+Differnt sensors delivers different events to their listeners.
+See JavaDoc to see the full documentation.

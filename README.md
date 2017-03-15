@@ -128,3 +128,20 @@ robot.touchSensor.registerListener(new TouchSensorListener() {
 
 Differnt sensors delivers different events to their listeners.
 See JavaDoc to see the full documentation.
+
+**Note** thta the listener will run untill you unregister it.
+As querying NXT drains its battery it is always a good idea to unregister listener when no longer is needed.
+Uregistering can be done inside the listener:
+```java
+robot.touchSensor.registerListener(new TouchSensorListener() {
+          @Override
+          public void onEventOccurred(TouchStateEvent e) {
+              // DO SOME COOL STUFF
+              tobot.touchSensor.unregisterListener();
+          }
+       });
+```
+
+## Voice controll
+### Grammar based recognition
+### Language model based recognition

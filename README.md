@@ -137,7 +137,7 @@ robot.touchSensor.registerListener(new TouchSensorListener() {
           @Override
           public void onEventOccurred(TouchStateEvent e) {
               // DO SOME COOL STUFF
-              tobot.touchSensor.unregisterListener();
+              robot.touchSensor.unregisterListener();
           }
        });
 ```

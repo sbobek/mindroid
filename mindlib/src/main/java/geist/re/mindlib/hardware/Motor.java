@@ -46,6 +46,7 @@ public class Motor {
     private static final String TAG = "Motor";
 
     private final RobotService owner;
+    private MotorStateListener motorStateListener;
 
 
     byte port;
@@ -53,6 +54,7 @@ public class Motor {
     private Timer motorStateQueryTimer;
     private MotorStateEvent currentStateUpdate;
     private int mState;
+    private int currentSpeed;
 
     public Motor(byte port, RobotService owner){
         this.port = port;
@@ -69,29 +71,56 @@ public class Motor {
         setState(STATE_RUNNING);
         MotorTask rmt = new MotorTask(this);
         rmt.setPowerSetPoint((byte)speed);
+        if(currentSpeed < speed) rmt.setRunStateRampup();
+        else rmt.setRunStateRampdown();
+
+        currentSpeed = speed;
         rmt.setTachoLimit(angle);
-        registerListener(motorStateListener,MOTOR_STATE_UPDATE_RATE);
+        registerListener(new MotorStateListener() {
+            @Override
+            public void onEventOccurred(MotorStateEvent e) {
+                if(currentStateUpdate != null){
+                    Log.d(TAG, "onStateChanged: "+currentStateUpdate.getRotationCount() + " vs. "+ currentStateUpdate.getTachoLimit());
+                    if(currentStateUpdate.getRotationCount() >= currentStateUpdate.getTachoLimit()){
+                        setState(STATE_STOPPED);
+                        unregisterListener();
+                    }else{
+                        setState(STATE_RUNNING);
+                    }
+                }
+            }
+        },MOTOR_STATE_UPDATE_RATE);
         return rmt;
     }
 
-    public MotorTask run(int speed){;
-        return run(speed, 0);
+    public MotorTask run(int speed){
+        setState(STATE_RUNNING);
+        MotorTask rmt = new MotorTask(this);
+        rmt.setPowerSetPoint((byte)speed);
+        rmt.setRunStateRunning();
+        currentSpeed = speed;
+
+        return rmt;
     }
 
 
     public MotorTask stop(){
         MotorTask rmt = new MotorTask(this);
-        rmt.setPowerSetPoint((byte)0);
+        rmt.setPowerSetPoint((byte)0x00);
+        rmt.setRunStateIdle();
         unregisterListener();
+        currentSpeed = 0;
         setState(STATE_STOPPED);
         return rmt;
     }
 
     public synchronized void registerListener(MotorStateListener msl, long rate){
+        Log.d(TAG,"Registering motor listener");
         if(motorStateListener != null){
             motorStateQueryTimer.cancel();
-            motorStateQueryTimer = new Timer();
+            motorStateQueryTimer.purge();
         }
+        motorStateQueryTimer = new Timer();
         currentStateUpdate = null;
         motorStateListener=msl;
         motorStateQueryTimer.scheduleAtFixedRate(new TimerTask() {
@@ -104,8 +133,11 @@ public class Motor {
     }
 
     public synchronized void unregisterListener(){
+        Log.d(TAG,"Unregistering motor listener");
         motorStateListener = null;
+        currentStateUpdate = null;
         motorStateQueryTimer.cancel();
+        motorStateQueryTimer.purge();
     }
 
     public synchronized void setState(int state){
@@ -121,24 +153,14 @@ public class Motor {
         return currentStateUpdate;
     }
 
-    private MotorStateListener motorStateListener = new MotorStateListener() {
-        @Override
-        public void onEventOccurred(MotorStateEvent e) {
-            if(currentStateUpdate != null){
-                Log.d(TAG, "onStateChanged: "+currentStateUpdate.getRotationCount());
-                if(currentStateUpdate.getRotationCount() >= currentStateUpdate.getTachoLimit()){
-                    setState(STATE_STOPPED);
-                    unregisterListener();
-                }else{
-                    setState(STATE_RUNNING);
-                }
-            }
-        }
-    };
+
 
     public synchronized void pushMotorStateEvent(Event event) {
         Log.d(TAG, "Pushing motor state event");
-        if(motorStateListener == null) return;
+        if(motorStateListener == null){
+            Log.d(TAG, "Pushing event to non existent listener");
+            return;
+        }
         currentStateUpdate = (MotorStateEvent) event;
         motorStateListener.onEventOccurred(event);
     }

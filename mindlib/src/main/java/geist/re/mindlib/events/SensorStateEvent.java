@@ -22,7 +22,7 @@ public class SensorStateEvent extends Event {
     public static final int IDX_CALIB_VAL_START = 16;
     public static final int IDX_CALIB_VAL_END = 17;
 
-    public static final int NORMALIZED_MAX_VALUE = 1024;
+    public static final int NORMALIZED_MAX_VALUE = 1023;
 
 
     private final Sensor.Port port;

@@ -444,13 +444,16 @@ public class RobotService extends Service {
                 case Event.RESPONSE_TYPE_GETINPUTVALUES:
                     SensorStateEvent s = (SensorStateEvent)event;
                     if(lightSensor != null && lightSensor.getPort() == s.getPort()){
-                        Log.e(TAG,"lightSensor "+lightSensor.getPort().getRaw()+" = "+s.getPort().getRaw());
+                        Log.d(TAG, "Notifying Light sensor listener");
                         lightSensor.pushSensorStateEvent(s);
                     }else if(touchSensor != null && touchSensor.getPort() ==  s.getPort()){
+                        Log.d(TAG, "Notifying Touch sensor listener");
                         touchSensor.pushSensorStateEvent(s);
                     }else if(soundSensor != null && soundSensor.getPort() ==  s.getPort()){
+                        Log.d(TAG, "Notifying Sound sensor listener");
                         soundSensor.pushSensorStateEvent(s);
                     }else if(ultrasonicSensor != null && ultrasonicSensor.getPort() ==  s.getPort()){
+                        Log.d(TAG, "Notifying Ultrasonic sensor listener");
                         ultrasonicSensor.pushSensorStateEvent(s);
                     }
                     break;

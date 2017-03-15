@@ -30,7 +30,7 @@ public class MotorTask extends RobotTask {
     public static final int IDX_TACHO_START = 10;
 
 
-    byte[] resetMotorPosition = {Motor.VAL_RESET_MESSAGE_LENGTH_LSB, Motor.VAL_RESET_MESSAGE_LENGTH_MSB, VAL_DIRECT_CMD, 0x0A, 0x00, 0x01};
+    byte[] resetMotorPosition = {Motor.VAL_RESET_MESSAGE_LENGTH_LSB, Motor.VAL_RESET_MESSAGE_LENGTH_MSB, VAL_DIRECT_CMD, 0x0A, 0x00, (byte)0x00};
     byte[] data = {VAL_LENGTH_LSB, VAL_LENGTH_MSB, VAL_DIRECT_CMD, Motor.VAL_CMD_TYPE, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     public MotorTask(byte[] data, byte[] resetMotorPosition) {
@@ -44,7 +44,6 @@ public class MotorTask extends RobotTask {
         enableSpeedRegulation();
         enableUseBreaksMode();
         enableMotorOnMode();
-        setRunStateRunning();
 
     }
 
@@ -72,6 +71,17 @@ public class MotorTask extends RobotTask {
 
     public void setRunStateRunning() {
         data[IDX_RUN_STATE] = Motor.VAL_RUN_STATE_RUNNING;
+    }
+
+    public void setRunStateRampup() {
+        data[IDX_RUN_STATE] = Motor.VAL_RUN_STATE_RAMPPUP;
+    }
+    public void setRunStateRampdown() {
+        data[IDX_RUN_STATE] = Motor.VAL_RUN_STATE_RAMPDOWN;
+    }
+
+    public void setRunStateIdle(){
+        data[IDX_RUN_STATE] = Motor.VAL_RUN_STATE_IDLE;
     }
 
     public void enableMotorOnMode() {
@@ -105,7 +115,6 @@ public class MotorTask extends RobotTask {
     public void execute(RobotService rs) {
         rs.writeToNXTSocket(resetMotorPosition);
         rs.writeToNXTSocket(data);
-        //rs.writeToNXTSocket(getRawQuery());
     }
 
     @Override

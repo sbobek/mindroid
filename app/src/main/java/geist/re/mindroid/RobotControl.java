@@ -55,25 +55,25 @@ public class RobotControl extends RobotControlActivity {
     public void commandProgram() throws SensorDisconnectedException {
         super.commandProgram();
         /*************** START YOUR PROGRAM HERE ***************/
-        robot.executeMotorTask(robot.motorA.run(10,360));
-        while(robot.motorA.getState() == Motor.STATE_RUNNING) {
-            pause(500);
-            Log.d(TAG, "Waiting....");
-        }
+        robot.executeMotorTask(robot.motorA.run(50));
+       // while(robot.motorA.getState() == Motor.STATE_RUNNING) {
+       //     pause(200);
+       //     Log.d(TAG, "Waiting....");
+       // }
 
 
-     /*   robot.touchSensor.connect(Sensor.Port.ONE);
+        robot.touchSensor.connect(Sensor.Port.ONE);
         robot.touchSensor.registerListener(new TouchSensorListener() {
             @Override
             public void onEventOccurred(TouchStateEvent e) {
                 Log.d(TAG, "Pressed: "+e.getNormalizedOutput());
                 if(e.isPressed()){
-                    Log.d(TAG, "Ececuting motors again");
-                    robot.executeMotorTask(robot.motorA.run(30,360));
+                    Log.d(TAG, "Executing motors again");
+                    robot.executeMotorTask(robot.motorA.run(10,3*360));
                 }
             }
         },200);
-        */
+
         //robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
         //pause(1000);
         //robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());

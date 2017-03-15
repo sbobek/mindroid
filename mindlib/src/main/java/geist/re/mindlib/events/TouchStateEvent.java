@@ -7,6 +7,8 @@ import geist.re.mindlib.exceptions.TelegramTypeException;
  */
 
 public class TouchStateEvent extends SensorStateEvent {
+    private static final double PRESSED_THRESHOLD = 0.5;
+
     public TouchStateEvent(byte[] rawData) throws TelegramTypeException {
         super(rawData);
     }
@@ -17,6 +19,10 @@ public class TouchStateEvent extends SensorStateEvent {
      * @return true is the sensor is pressed
      */
     public boolean isPressed(){
-        return getNormalizedOutput() != 0;
+        return getPressure() >= PRESSED_THRESHOLD;
+    }
+
+    public double getPressure(){
+        return 1.0-getCalibratedOutput()/NORMALIZED_MAX_VALUE;
     }
 }

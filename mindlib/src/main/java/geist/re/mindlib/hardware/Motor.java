@@ -71,7 +71,7 @@ public class Motor {
         setState(STATE_RUNNING);
         MotorTask rmt = new MotorTask(this);
         rmt.setPowerSetPoint((byte)speed);
-        if(currentSpeed < speed) rmt.setRunStateRampup();
+        if(currentSpeed <= speed) rmt.setRunStateRampup();
         else rmt.setRunStateRampdown();
 
         currentSpeed = speed;

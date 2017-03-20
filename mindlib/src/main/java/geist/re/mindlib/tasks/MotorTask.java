@@ -12,13 +12,12 @@ import geist.re.mindlib.utils.BluetoothProtocolUtils;
  * Created by sbk on 09.02.17.
  */
 
-public class MotorTask extends RobotTask {
+public class MotorTask extends RobotQueryTask {
 
     public static final byte VAL_LENGTH_LSB = 0x0c;
     public static final byte VAL_LENGTH_MSB = 0x00;
     public static final byte VAL_DIRECT_CMD = (byte) 0x80;
-
-
+    
 
     public static final int IDX_OUTPUT_PORT = 4;
     public static final int IDX_POWER_SET_POINT = 5;

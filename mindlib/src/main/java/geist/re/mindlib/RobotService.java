@@ -14,9 +14,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.util.LinkedList;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import geist.re.mindlib.events.Event;
 import geist.re.mindlib.events.LightStateEvent;
@@ -33,7 +33,6 @@ import geist.re.mindlib.hardware.TouchSensor;
 import geist.re.mindlib.hardware.UltrasonicSensor;
 import geist.re.mindlib.tasks.MotorTask;
 import geist.re.mindlib.tasks.RobotQueryTask;
-import geist.re.mindlib.tasks.RobotTask;
 
 
 /**
@@ -57,9 +56,8 @@ public class RobotService extends Service {
     private ConnectedThread mConnectedThread;
     private int mConnState;
 
-    private LinkedList<RobotTask> robotTaskQueue = new LinkedList<>();
-    private LinkedList<RobotQueryTask> robotQueryQueue = new LinkedList<>();
-    TaskExecutorThread taskExecutor = new TaskExecutorThread();
+    private LinkedBlockingQueue<RobotQueryTask> robotQueryQueue = new LinkedBlockingQueue<>();
+
     QueryExecutorThread queryExecutor = new QueryExecutorThread();
 
 
@@ -82,21 +80,10 @@ public class RobotService extends Service {
         soundSensor = new SoundSensor(this);
         ultrasonicSensor = new UltrasonicSensor(this);
 
-        taskExecutor.start();
         queryExecutor.start();
 
 
     }
-
-
-    public synchronized void addToQueueTask(RobotTask rt){
-        robotTaskQueue.add(rt);
-        synchronized (taskExecutor) {
-            taskExecutor.notify();
-        }
-
-    }
-
 
 
     public synchronized void addToQueryQueue(RobotQueryTask rqt){
@@ -109,23 +96,23 @@ public class RobotService extends Service {
 
 
     public void executeMotorTask(MotorTask motorTask){
-        addToQueueTask(motorTask);
+        addToQueryQueue(motorTask);
     }
 
     public void executeSyncTwoMotorTask(MotorTask motorTask1, MotorTask motorTask2){
         motorTask1.sync();
         motorTask2.sync();
-        addToQueueTask(motorTask1);
-        addToQueueTask(motorTask2);
+        addToQueryQueue(motorTask1);
+        addToQueryQueue(motorTask2);
     }
 
     public void executeSyncThreeMotorTask(MotorTask motorTask1, MotorTask motorTask2, MotorTask motorTask3){
         motorTask1.sync();
         motorTask2.sync();
         motorTask3.sync();
-        addToQueueTask(motorTask1);
-        addToQueueTask(motorTask2);
-        addToQueueTask(motorTask3);
+        addToQueryQueue(motorTask1);
+        addToQueryQueue(motorTask2);
+        addToQueryQueue(motorTask3);
     }
 
 
@@ -263,8 +250,8 @@ public class RobotService extends Service {
     private synchronized void setConnectionState(int state) {
         mConnState = state;
         if(mConnState == CONN_STATE_CONNECTED){
-            synchronized (taskExecutor) {
-                taskExecutor.notify();
+            synchronized (queryExecutor) {
+                queryExecutor.notify();
             }
         }
         Intent intent = new Intent(ROBOT_STATE_NOTIFICATION);
@@ -463,29 +450,6 @@ public class RobotService extends Service {
         }
     }
 
-    protected class TaskExecutorThread extends Thread{
-            @Override
-            public void run() {
-                while(true) {
-                    while (robotTaskQueue.isEmpty() ||
-                            RobotService.this.getConnectionState() != CONN_STATE_CONNECTED) {
-                        synchronized (this) {
-                            try {
-                                wait();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                    synchronized (this) {
-                        RobotTask rt = robotTaskQueue.poll();
-                        rt.execute(RobotService.this);
-                    }
-                }
-
-            }
-    }
-
     protected class QueryExecutorThread extends Thread{
         @Override
         public void run() {
@@ -499,10 +463,8 @@ public class RobotService extends Service {
                         }
                     }
                 }
-                synchronized (this) {
-                    RobotQueryTask rqt = robotQueryQueue.poll();
-                    rqt.execute(RobotService.this);
-                }
+                RobotQueryTask rqt = robotQueryQueue.poll();
+                rqt.execute(RobotService.this);
             }
 
         }

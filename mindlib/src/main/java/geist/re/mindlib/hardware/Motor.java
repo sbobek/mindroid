@@ -67,22 +67,23 @@ public class Motor {
         return port;
     }
 
-    public MotorTask run(int speed, int angle){
+    public MotorTask run(int speed, final int angle){
         setState(STATE_RUNNING);
         MotorTask rmt = new MotorTask(this);
         rmt.setPowerSetPoint((byte)speed);
-        if(Math.abs(currentSpeed) <= Math.abs(speed)) rmt.setRunStateRampup();
-        else rmt.setRunStateRampdown();
+        //if(Math.abs(currentSpeed) <= Math.abs(speed)) rmt.setRunStateRampup();
+        //else rmt.setRunStateRampdown();
+        rmt.setRunStateRunning();
 
         currentSpeed = speed;
-        rmt.setTachoLimit(angle);
+       // rmt.setTachoLimit(angle);
         registerListener(new MotorStateListener() {
             @Override
             public void onEventOccurred(MotorStateEvent e) {
                 if(currentStateUpdate != null){
                     Log.d(TAG, "onStateChanged: "+currentStateUpdate.getRotationCount() + " vs. "+ currentStateUpdate.getTachoLimit());
-                    if(currentStateUpdate.getRotationCount() >= currentStateUpdate.getTachoLimit()){
-                        setState(STATE_STOPPED);
+                    if(Math.abs(currentStateUpdate.getRotationCount()) >= angle ){
+                        stop();
                         unregisterListener();
                     }else{
                         setState(STATE_RUNNING);

@@ -194,8 +194,9 @@ public abstract class Sensor {
         }
         if(stateListener != null){
              stateQueryTimer.cancel();
-             stateQueryTimer = new Timer();
+             stateQueryTimer.purge();
         }
+        stateQueryTimer = new Timer();
         currentStateUpdate = null;
         stateListener =rsl;
          stateQueryTimer.scheduleAtFixedRate(new TimerTask() {

@@ -17,6 +17,6 @@ public class SoundStateEvent extends SensorStateEvent {
      * @return sound intensity
      */
     public double getSoundIntensity(){
-        return getNormalizedOutput()/NORMALIZED_MAX_VALUE;
+        return ((double)getNormalizedOutput())/NORMALIZED_MAX_VALUE;
     }
 }

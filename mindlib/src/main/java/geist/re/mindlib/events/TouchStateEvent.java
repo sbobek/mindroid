@@ -23,6 +23,6 @@ public class TouchStateEvent extends SensorStateEvent {
     }
 
     public double getPressure(){
-        return 1.0-getCalibratedOutput()/NORMALIZED_MAX_VALUE;
+        return 1.0-((double)getCalibratedOutput())/NORMALIZED_MAX_VALUE;
     }
 }

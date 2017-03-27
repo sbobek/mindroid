@@ -55,7 +55,20 @@ public class RobotControl extends RobotControlActivity {
     public void commandProgram() throws SensorDisconnectedException {
         super.commandProgram();
         /*************** START YOUR PROGRAM HERE ***************/
-        robot.executeMotorTask(robot.motorA.run(50,360));
+        robot.executeMotorTask(robot.motorA.run(10));
+        robot.touchSensor.connect(Sensor.Port.ONE);
+
+        robot.touchSensor.registerListener(new TouchSensorListener() {
+            @Override
+            public void onEventOccurred(TouchStateEvent e) {
+                Log.d(TAG, "Pressure "+e.getPressure());
+                if(e.isPressed()){
+                    robot.executeMotorTask(robot.motorA.stop());
+                    robot.executeMotorTask(robot.motorA.run(-10));
+                    robot.touchSensor.unregisterListener();
+                }
+            }
+        });
 
     }
 

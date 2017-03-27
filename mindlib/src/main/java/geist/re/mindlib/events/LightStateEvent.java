@@ -19,7 +19,7 @@ public class LightStateEvent extends SensorStateEvent {
      * @return light intensity
      */
     public double getLightIntensity(){
-        return getNormalizedOutput()/NORMALIZED_MAX_VALUE;
+        return ((double)getNormalizedOutput())/NORMALIZED_MAX_VALUE;
     }
 
 }

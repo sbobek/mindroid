@@ -180,4 +180,8 @@ grammar robot;
 public <item> = <forward> | <stop> | <backward> | <max> ;
 ```
 The complete syntax of the JSGF format can be found on [W3C website](https://www.w3.org/TR/jsgf/).
+
 ### Language model based recognition
+Alternatively to grammar file, you can build a statistical model to recognize more complex commands.
+See this [Tutorial](http://cmusphinx.sourceforge.net/wiki/tutoriallm) to find out how to add statistical model to Mindroid.
+

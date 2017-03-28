@@ -43,7 +43,7 @@ Below, the example of a usage of voice commands is given.
 Speach recognition will be enabled when you push the microphone button in the mobnile app.
 It is worth noting, that both functions can be executed simultaneously, i.e. you can write a command program to tell robot to move around, and then in ```onVoiceCommand()``` stop robot when the **stop** phare was recognised.
 
-For more information on voice recognition, see: [Advanced guide](#advanced-guide) and [CMU Sphinx website](http://cmusphinx.sourceforge.net/)
+For more information on voice recognition, see: [Voice control](#voice-control) and [CMU Sphinx website](http://cmusphinx.sourceforge.net/)
 
 ``` java
  @Override
@@ -143,5 +143,24 @@ robot.touchSensor.registerListener(new TouchSensorListener() {
 ```
 
 ## Voice control
+To handle voice commands you need to modify ```onVoiceCommand``` method presented below.
+However, the speech recognition service will not recognize commads that are not given in grammar file, or in language model.
+
+``` java
+ @Override
+    public void onVoiceCommand(String message) {
+        super.onVoiceCommand(message);
+        /*************** HANDLE VOICE MESSAGE HERE ***************/
+        if(message.equals("run forward")){
+            robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
+        }else if(message.equals("stop")){
+            robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());
+        }else if(message.equals("run backward")) {
+            robot.executeSyncTwoMotorTask(robot.motorA.run(-30), robot.motorB.run(-30));
+        }else{
+            Log.d(TAG, "Received wrong command: "+message);
+        }
+}
+```
 ### Grammar based recognition
 ### Language model based recognition

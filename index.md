@@ -179,5 +179,5 @@ grammar robot;
 
 public <item> = <forward> | <stop> | <backward> | <max> ;
 ```
-
+The complete syntax of the JSGF format can be found on [W3C website](https://www.w3.org/TR/jsgf/).
 ### Language model based recognition

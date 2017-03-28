@@ -71,19 +71,17 @@ public class Motor {
         setState(STATE_RUNNING);
         MotorTask rmt = new MotorTask(this);
         rmt.setPowerSetPoint((byte)speed);
-        //if(Math.abs(currentSpeed) <= Math.abs(speed)) rmt.setRunStateRampup();
-        //else rmt.setRunStateRampdown();
+
         rmt.setRunStateRunning();
 
         currentSpeed = speed;
-       // rmt.setTachoLimit(angle);
         registerListener(new MotorStateListener() {
             @Override
             public void onEventOccurred(MotorStateEvent e) {
                 if(currentStateUpdate != null){
                     Log.d(TAG, "onStateChanged: "+currentStateUpdate.getRotationCount() + " vs. "+ currentStateUpdate.getTachoLimit());
-                    if(Math.abs(currentStateUpdate.getRotationCount()) >= angle ){
-                        stop();
+                    if(Math.abs(currentStateUpdate.getRotationCount()) - angle >= 0 ){
+                        owner.executeMotorTask(stop());
                         unregisterListener();
                     }else{
                         setState(STATE_RUNNING);

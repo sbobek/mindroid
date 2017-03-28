@@ -29,7 +29,7 @@ import geist.re.mindlib.listeners.TouchSensorListener;
 
 public class RobotControl extends RobotControlActivity {
     private static final String TAG = "ControlApp";
-    private static final String ROBOT_NAME = "02Bolek";
+    private static final String ROBOT_NAME = "11Kajtek";
     private static final float VOLUME = 0.2f;
 
     FloatingActionButton start;

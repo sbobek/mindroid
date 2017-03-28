@@ -163,4 +163,21 @@ However, the speech recognition service will not recognize commads that are not 
 }
 ```
 ### Grammar based recognition
+Grammar file that descibes allowed commands is located in [models/assets/robot-commands.gram](https://github.com/sbobek/mindroid/blob/master/models/src/main/assets/sync/robot-commands.gram) file.
+
+The example of the file is given below:
+
+```
+#JSGF V1.0;
+
+grammar robot;
+
+<forward>  = run forward;
+<backward>  = run backward;
+<stop> = stop;
+<max>  = (<forward> | <backward> ) with maximum speed;
+
+public <item> = <forward> | <stop> | <backward> | <max> ;
+```
+
 ### Language model based recognition

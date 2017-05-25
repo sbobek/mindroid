@@ -2,9 +2,7 @@ package geist.re.mindroid;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.SoundPool;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,29 +11,31 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import geist.re.mindlib.RobotControlActivity;
 import geist.re.mindlib.RobotService;
-import geist.re.mindlib.events.LightStateEvent;
 import geist.re.mindlib.events.TouchStateEvent;
 import geist.re.mindlib.exceptions.SensorDisconnectedException;
-import geist.re.mindlib.hardware.LightSensor;
-import geist.re.mindlib.hardware.Motor;
 import geist.re.mindlib.hardware.Sensor;
-import geist.re.mindlib.hardware.TouchSensor;
-import geist.re.mindlib.listeners.LightSensorListener;
 import geist.re.mindlib.listeners.TouchSensorListener;
 
 public class RobotControl extends RobotControlActivity {
     private static final String TAG = "ControlApp";
-    private static final String ROBOT_NAME = "11Kajtek";
+    private static final String ROBOT_NAME = "02Bolek";
     private static final float VOLUME = 0.2f;
 
     FloatingActionButton start;
     FloatingActionButton stop;
     FloatingActionButton voice;
     FloatingActionButton connect;
+    FloatingActionButton orientation;
+
+    TextView xText;
+    TextView yText;
+    TextView zText;
+
     SoundPool sp = new SoundPool(5, AudioManager.STREAM_NOTIFICATION, 0);
 
     private static int READY;
@@ -90,11 +90,25 @@ public class RobotControl extends RobotControlActivity {
         }
     }
 
+
+
+    @Override
+    protected synchronized void onGestureCommand(double x, double y, double z) {
+        displayValues(x,y,z);
+        /*************** HANDLE GESTURES HERE ***************/
+    }
+
+
     /**************************************************************/
     /**************************************************************/
     /**************************************************************/
     /**************************************************************/
 
+    private void displayValues(double x, double y, double z){
+        xText.setText(Double.toString(x));
+        yText.setText(Double.toString(y));
+        zText.setText(Double.toString(z));
+    }
     private void pause(int time) {
         try {
             Thread.sleep(time);
@@ -129,12 +143,19 @@ public class RobotControl extends RobotControlActivity {
         stop = (FloatingActionButton) findViewById(R.id.stop);
         voice = (FloatingActionButton) findViewById(R.id.voice);
         connect = (FloatingActionButton) findViewById(R.id.connect);
+        orientation = (FloatingActionButton) findViewById(R.id.orientationButton);
+
+
+        xText = (TextView) findViewById(R.id.xText);
+        yText = (TextView) findViewById(R.id.yText);
+        zText = (TextView) findViewById(R.id.zText);
 
 
         start.setVisibility(FloatingActionButton.INVISIBLE);
         stop.setVisibility(FloatingActionButton.INVISIBLE);
         voice.setVisibility(FloatingActionButton.INVISIBLE);
         connect.setVisibility(FloatingActionButton.INVISIBLE);
+        orientation.setVisibility(FloatingActionButton.INVISIBLE);
 
         /** soundId for Later handling of sound pool **/
         READY=sp.load(this,R.raw.ready, 1); // in 2nd param u have to pass your desire ringtone
@@ -162,8 +183,11 @@ public class RobotControl extends RobotControlActivity {
         stop.setVisibility(FloatingActionButton.VISIBLE);
         voice.setVisibility(FloatingActionButton.VISIBLE);
         connect.setVisibility(FloatingActionButton.VISIBLE);
+        orientation.setVisibility(FloatingActionButton.VISIBLE);
 
     }
+
+
 
     @Override
     protected void onRobotDisconnected() {
@@ -172,9 +196,14 @@ public class RobotControl extends RobotControlActivity {
         stop.setVisibility(FloatingActionButton.INVISIBLE);
         voice.setVisibility(FloatingActionButton.INVISIBLE);
         connect.setVisibility(FloatingActionButton.VISIBLE);
+        orientation.setVisibility(FloatingActionButton.INVISIBLE);
 
 
 
+    }
+
+    public void gestures(View v){
+        startOrientationScanning();
     }
 
     public void start(View v){
@@ -214,6 +243,7 @@ public class RobotControl extends RobotControlActivity {
             Toast.makeText(this, "Waiting for robot to connect...", Toast.LENGTH_LONG).show();
             return;
         }
+        stopOrientationScanning();
         stopRecognizer();
         robot.executeSyncThreeMotorTask(robot.motorA.stop(), robot.motorB.stop(), robot.motorC.stop());
 

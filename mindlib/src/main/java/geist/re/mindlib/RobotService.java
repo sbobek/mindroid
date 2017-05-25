@@ -177,8 +177,9 @@ public class RobotService extends Service {
 
         if(result == null){
             Log.d(TAG,"No device of a given name is available to connect.");
+        }else {
+            initiateConnection(result);
         }
-        initiateConnection(result);
     }
 
 

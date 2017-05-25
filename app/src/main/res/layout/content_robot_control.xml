@@ -68,4 +68,78 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/orientationButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="25dp"
+        android:layout_marginStart="25dp"
+        android:layout_toEndOf="@+id/start"
+        android:layout_toRightOf="@+id/start"
+        android:clickable="true"
+        app:backgroundTint="@android:color/holo_red_dark"
+        app:fabSize="mini"
+        android:onClick="gestures"
+        app:srcCompat="@android:drawable/ic_menu_compass" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="X: " />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textView4"
+        android:layout_marginTop="18dp"
+        android:text="Y: " />
+
+    <TextView
+        android:id="@+id/textView6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textView5"
+        android:layout_marginTop="23dp"
+        android:text="Z: " />
+
+    <TextView
+        android:id="@+id/xText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/orientationButton"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/orientationButton"
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"
+        android:text="@android:string/unknownName" />
+
+    <TextView
+        android:id="@+id/yText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textView5"
+        android:layout_alignBottom="@+id/textView5"
+        android:layout_alignLeft="@+id/xText"
+        android:layout_alignStart="@+id/xText"
+        android:text="@android:string/unknownName" />
+
+    <TextView
+        android:id="@+id/zText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/yText"
+        android:layout_alignStart="@+id/yText"
+        android:layout_alignTop="@+id/textView6"
+        android:text="@android:string/unknownName" />
+
 </RelativeLayout>

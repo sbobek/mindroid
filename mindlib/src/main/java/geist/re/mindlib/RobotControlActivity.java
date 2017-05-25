@@ -10,6 +10,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
@@ -22,6 +26,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import edu.cmu.pocketsphinx.Assets;
 import edu.cmu.pocketsphinx.Hypothesis;
@@ -32,7 +38,7 @@ import geist.re.mindlib.exceptions.SensorDisconnectedException;
 
 
 public abstract class RobotControlActivity extends AppCompatActivity implements
-        RecognitionListener {
+        RecognitionListener,SensorEventListener {
     private static final String TAG = "ROBOT";
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 2;
@@ -49,11 +55,30 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
     protected RobotService robot;
     protected SpeechRecognizer recognizer;
 
+    // Refresh rate for refreshing UI
+    public static  int REFRESH_INTERVAL = 50;
+
+    //filtering gyroscope
+    public static  float FILTER_COEFFICIENT = 0.8f;
+
+
+    // device sensor manager
+    private SensorManager mSensorManager;
+
+    private Sensor mSensorAcc;
+
+    // accelerometer vector
+    private float[] accel = new float[3];
+
+    private Timer refreshTimer;
+    private boolean orientationScanning = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
         if (mBluetoothAdapter == null) {
             // Device does not support Bluetooth
             Log.d(TAG,"Bluetooth not available on this device");
@@ -72,6 +97,10 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
             runRecognizerSetup();
         }
 
+        // initialize your android device sensor capabilities
+        mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        mSensorAcc = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -80,13 +109,16 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
         super.onResume();
         registerReceiver(receiver, new IntentFilter(
                 RobotService.ROBOT_STATE_NOTIFICATION));
+        if(orientationScanning) startSensorTracking();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(receiver);
+        if(orientationScanning) stopSensorTracking();
     }
+
 
     private void runRecognizerSetup() {
         // Recognizer initialization is a time-consuming and it involves IO,
@@ -314,8 +346,75 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
         }
     };
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        switch(event.sensor.getType()) {
+            case Sensor.TYPE_ACCELEROMETER:
+                accel[0] = FILTER_COEFFICIENT*accel[0] + (1-FILTER_COEFFICIENT)*event.values[0];
+                accel[1] = FILTER_COEFFICIENT*accel[1] + (1-FILTER_COEFFICIENT)*event.values[1];
+                accel[2] = FILTER_COEFFICIENT*accel[2] + (1-FILTER_COEFFICIENT)*event.values[2];
+                break;
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+        // unused
+    }
+
+
+
+
+    class refreshSensorTask extends TimerTask {
+        public void run() {
+            if(robot != null){
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        onGestureCommand(Math.round(accel[0]*100)/100,
+                                Math.round(accel[1]*100)/100,
+                                Math.round(accel[2]*100)/100);
+                    }
+                });
+            }
+        }
+    }
+
+
+    protected void startOrientationScanning(){
+        if(orientationScanning) return;
+        orientationScanning = true;
+        startSensorTracking();
+    }
+
+    protected void stopOrientationScanning(){
+        if(!orientationScanning) return;
+        orientationScanning = false;
+        stopSensorTracking();
+    }
+
+    private void startSensorTracking(){
+        // for the system's orientation sensor registered listeners
+        if(mSensorAcc != null)
+            mSensorManager.registerListener(this, mSensorAcc, SensorManager.SENSOR_DELAY_FASTEST);
+        refreshTimer = new Timer();
+        refreshTimer.scheduleAtFixedRate(new refreshSensorTask(),
+                1000, REFRESH_INTERVAL);
+    }
+
+    private void stopSensorTracking(){
+        // to stop the listener and save battery
+        mSensorManager.unregisterListener(this);
+        refreshTimer.cancel();
+        refreshTimer.purge();
+    }
+
 
     protected abstract void onRobotDisconnected();
 
     protected abstract void onRobotConnected();
+
+    protected abstract void onGestureCommand(double x, double y, double z);
+
+
 }

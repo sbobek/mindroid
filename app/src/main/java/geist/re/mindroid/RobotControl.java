@@ -24,7 +24,6 @@ import geist.re.mindlib.listeners.TouchSensorListener;
 public class RobotControl extends RobotControlActivity {
     private static final String TAG = "ControlApp";
     private static final String ROBOT_NAME = "02Bolek";
-    private static final float VOLUME = 0.2f;
 
     FloatingActionButton start;
     FloatingActionButton stop;
@@ -36,11 +35,6 @@ public class RobotControl extends RobotControlActivity {
     TextView yText;
     TextView zText;
 
-    SoundPool sp = new SoundPool(5, AudioManager.STREAM_NOTIFICATION, 0);
-
-    private static int READY;
-    private static int YES;
-    private static int ERROR;
 
 
 
@@ -121,18 +115,14 @@ public class RobotControl extends RobotControlActivity {
     }
 
 
-    protected void error(){
-        playSound(ERROR);
-    }
-
     @Override
     protected void onStartListeningForVoiceCommands() {
-        playSound(READY);
+
     }
 
     @Override
     protected void onStartListeningForVoiceWakeup() {
-        playSound(READY);
+
     }
 
     @Override
@@ -159,11 +149,6 @@ public class RobotControl extends RobotControlActivity {
         voice.setVisibility(FloatingActionButton.INVISIBLE);
         connect.setVisibility(FloatingActionButton.INVISIBLE);
         orientation.setVisibility(FloatingActionButton.INVISIBLE);
-
-        /** soundId for Later handling of sound pool **/
-        READY=sp.load(this,R.raw.ready, 1); // in 2nd param u have to pass your desire ringtone
-        YES=sp.load(this,R.raw.yes, 1); // in 2nd param u have to pass your desire ringtone
-        ERROR=sp.load(this,R.raw.error, 1); // in 2nd param u have to pass your desire ringtone
 
         //keep the screen on
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -304,10 +289,6 @@ public class RobotControl extends RobotControlActivity {
 
 
         }
-    }
-
-    public void playSound(final int soundId){
-        sp.play(soundId, 1, 1, 0, 0, 1);
     }
 
     public void quit(View v){

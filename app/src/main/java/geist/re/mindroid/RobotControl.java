@@ -79,10 +79,13 @@ public class RobotControl extends RobotControlActivity {
 
 
         if(message.equals("run forward")){
+            speakBack("No problem");
             robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
         }else if(message.equals("stop")){
+            speakBack("It was a pleasure");
             robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());
         }else if(message.equals("run backward")) {
+            speakBack("I'm executing");
             robot.executeSyncTwoMotorTask(robot.motorA.run(-30), robot.motorB.run(-30));
         }else{
             Log.d(TAG, "Received wrong command: "+message);

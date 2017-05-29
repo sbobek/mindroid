@@ -1,6 +1,7 @@
 package geist.re.mindlib;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -15,7 +16,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.IBinder;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -26,6 +30,8 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -44,16 +50,17 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
     private static final int PERMISSIONS_REQUEST_RECORD_AUDIO = 2;
 
     /* Named searches allow to quickly reconfigure the decoder */
-    private static final String KWS_SEARCH = "wakeup";
+    private static final String KWS_SEARCH_START = "wakeup";
     private static final String ROBOT_COMMANDS = "commands";
     private static final String ON_HOLD = "hold";
 
     /* Keyword we are looking for to activate menu */
-    private static final String KEYPHRASE = "robot";
+    private static final String KEYPHRASE_START = "robot";
 
 
     protected RobotService robot;
     protected SpeechRecognizer recognizer;
+    protected TextToSpeech textToSpeach;
 
     // Refresh rate for refreshing UI
     public static  int REFRESH_INTERVAL = 50;
@@ -96,6 +103,41 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
         }else {
             runRecognizerSetup();
         }
+
+
+        textToSpeach=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+
+                if (status == TextToSpeech.SUCCESS) {
+                    textToSpeach.setLanguage(Locale.US);
+                    textToSpeach.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                        @Override
+                        public void onDone(String switchOption) {
+                             Log.d("MainActivity", switchOption);
+                             //switch to listening (kw-search/robot-commands)
+                            if(switchOption.equals(KWS_SEARCH_START)){
+                                switchSearch(KWS_SEARCH_START);
+                            }else if(switchOption.equals(ROBOT_COMMANDS)){
+                                switchSearch(ROBOT_COMMANDS);
+                            }else if (switchOption.equals(ON_HOLD)){
+                                switchSearch(ON_HOLD);
+                            }
+                        }
+
+                        @Override
+                        public void onError(String utteranceId) {
+                        }
+
+                        @Override
+                        public void onStart(String utteranceId) {
+                        }
+                    });
+                } else {
+                    Log.e(TAG, "Initilization of TTS Failed!");
+                }
+            }
+        });
 
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -218,8 +260,8 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
 
         String text = hypothesis.getHypstr();
         Log.d(TAG, "Partial: "+text);
-        if (text.equals(KEYPHRASE)) {
-            switchSearch(ROBOT_COMMANDS);
+        if (text.equals(KEYPHRASE_START)) {
+            speakBack("Yes", ROBOT_COMMANDS);
         }
     }
 
@@ -234,7 +276,7 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
 
         final String text = hypothesis.getHypstr();
         Toast.makeText(RobotControlActivity.this, text, Toast.LENGTH_LONG).show();
-        if(text.equals(KEYPHRASE)){
+        if(text.equals(KEYPHRASE_START)){
             return;
         }
 
@@ -242,7 +284,7 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
     }
 
     protected void startRecognizer(){
-        switchSearch(KWS_SEARCH);
+        switchSearch(KWS_SEARCH_START);
     }
 
     protected  void stopRecognizer(){
@@ -254,7 +296,9 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
     }
     public void onVoiceCommand(String message){
         if(robot == null) return;
+
     }
+
 
     @Override
     public void onBeginningOfSpeech() {
@@ -265,8 +309,11 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
      */
     @Override
     public void onEndOfSpeech() {
-        if (!recognizer.getSearchName().equals(KWS_SEARCH))
-            switchSearch(KWS_SEARCH);
+        if (!recognizer.getSearchName().equals(KWS_SEARCH_START)) {
+            //response, and then switch search.
+            //switchSearch(KWS_SEARCH_START);
+            switchSearch(ON_HOLD);
+        }
     }
 
     private void switchSearch(String searchName) {
@@ -275,7 +322,7 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
             return;
         }
         // If we are not spotting, start listening with timeout (10000 ms or 10 seconds).
-        if (searchName.equals(KWS_SEARCH)) {
+        if (searchName.equals(KWS_SEARCH_START)) {
             onStartListeningForVoiceWakeup();
             recognizer.startListening(searchName);
         }else {
@@ -307,7 +354,7 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
          */
 
         // Create keyword-activation search.
-        recognizer.addKeyphraseSearch(KWS_SEARCH, KEYPHRASE);
+        recognizer.addKeyphraseSearch(KWS_SEARCH_START, KEYPHRASE_START);
 
         // Create grammar-based search for selection between demos
         File robotGrammar = new File(assetsDir, "robot-commands.gram");
@@ -321,7 +368,32 @@ public abstract class RobotControlActivity extends AppCompatActivity implements
 
     @Override
     public void onTimeout() {
-        switchSearch(KWS_SEARCH);
+        switchSearch(KWS_SEARCH_START);
+    }
+
+
+    public void speakBack(String text){
+        speakBack(text, KWS_SEARCH_START);
+    }
+    protected void speakBack(String text, String switchBackTo){
+        switchSearch(ON_HOLD);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            ttsGreater21(text,switchBackTo);
+        } else {
+            ttsUnder20(text,switchBackTo);
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void ttsUnder20(String text, String switchBackTo) {
+        HashMap<String, String> map = new HashMap<>();
+        map.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, switchBackTo);
+        textToSpeach.speak(text, TextToSpeech.QUEUE_FLUSH, map);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void ttsGreater21(String text, String switchBackTo) {
+        textToSpeach.speak(text, TextToSpeech.QUEUE_FLUSH, null, switchBackTo);
     }
 
 

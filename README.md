@@ -115,7 +115,7 @@ This **does not** allow you to get any updates from the NXT Brick.
 In order to start receiving updates, you have to register appropriate listener:
 
 ```java
-robot.touchSensor.registerListener(new TouchSensorListener() {
+ robot.touchSensor.registerListener(new TouchSensorListener() {
           @Override
           public void onEventOccurred(TouchStateEvent e) {
               if(e.isPressed()){
@@ -190,7 +190,7 @@ The system uses accelerometer data from mobile phone to allow controlling robot 
 
 The code repsonsibel for controlling robot based on acceleration should be placed in following method, located in RobotControl class.
 
-```
+``` java
  @Override
     protected synchronized void onGestureCommand(double x, double y, double z) {
         displayValues(x,y,z);

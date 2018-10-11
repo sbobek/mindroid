@@ -185,3 +185,18 @@ The complete syntax of the JSGF format can be found on [W3C website](https://www
 Alternatively to grammar file, you can build a statistical model to recognize more complex commands.
 See this [Tutorial](http://cmusphinx.sourceforge.net/wiki/tutoriallm) to find out how to add statistical model to Mindroid.
 
+## Basic gestures
+The system uses accelerometer data from mobile phone to allow controlling robot via basic gestures (or more precisely via motion of mobile device around three axis.
+
+The code repsonsibel for controlling robot based on acceleration should be placed in following method, located in RobotControl class.
+
+```
+ @Override
+    protected synchronized void onGestureCommand(double x, double y, double z) {
+        displayValues(x,y,z);
+        /*************** HANDLE GESTURES HERE ***************/
+    }
+
+```
+
+The ```x,y,z``` corresponds to Android coordinate system described here: [Coordinate system](https://developer.android.com/guide/topics/sensors/sensors_overview.html#sensors-coords)

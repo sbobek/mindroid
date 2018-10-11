@@ -143,5 +143,60 @@ robot.touchSensor.registerListener(new TouchSensorListener() {
 ```
 
 ## Voice control
+To handle voice commands you need to modify ```onVoiceCommand``` method presented below.
+However, the speech recognition service will not recognize commads that are not given in grammar file, or in language model.
+
+``` java
+ @Override
+    public void onVoiceCommand(String message) {
+        super.onVoiceCommand(message);
+        /*************** HANDLE VOICE MESSAGE HERE ***************/
+        if(message.equals("run forward")){
+            robot.executeSyncTwoMotorTask(robot.motorA.run(30),robot.motorB.run(30));
+        }else if(message.equals("stop")){
+            robot.executeSyncTwoMotorTask(robot.motorA.stop(), robot.motorB.stop());
+        }else if(message.equals("run backward")) {
+            robot.executeSyncTwoMotorTask(robot.motorA.run(-30), robot.motorB.run(-30));
+        }else{
+            Log.d(TAG, "Received wrong command: "+message);
+        }
+}
+```
 ### Grammar based recognition
+Grammar file that descibes allowed commands is located in [models/assets/robot-commands.gram](https://github.com/sbobek/mindroid/blob/master/models/src/main/assets/sync/robot-commands.gram) file.
+
+The example of the file is given below:
+
+```
+#JSGF V1.0;
+
+grammar robot;
+
+<forward>  = run forward;
+<backward>  = run backward;
+<stop> = stop;
+<max>  = (<forward> | <backward> ) with maximum speed;
+
+public <item> = <forward> | <stop> | <backward> | <max> ;
+```
+The complete syntax of the JSGF format can be found on [W3C website](https://www.w3.org/TR/jsgf/).
+
 ### Language model based recognition
+Alternatively to grammar file, you can build a statistical model to recognize more complex commands.
+See this [Tutorial](http://cmusphinx.sourceforge.net/wiki/tutoriallm) to find out how to add statistical model to Mindroid.
+
+## Basic gestures
+The system uses accelerometer data from mobile phone to allow controlling robot via basic gestures (or more precisely via motion of mobile device around three axis.
+
+The code repsonsibel for controlling robot based on acceleration should be placed in following method, located in RobotControl class.
+
+```
+ @Override
+    protected synchronized void onGestureCommand(double x, double y, double z) {
+        displayValues(x,y,z);
+        /*************** HANDLE GESTURES HERE ***************/
+    }
+
+```
+
+The ```x,y,z``` corresponds to Android coordinate system described here: [Coordinate system](https://developer.android.com/guide/topics/sensors/sensors_overview.html#sensors-coords)

@@ -96,7 +96,7 @@ public class RobotService extends Service {
     }
 
     public void executePlaySound(PlaySoundTask pst){
-        return;
+        addToQueryQueue(pst);
     }
 
     public void executeMotorTask(MotorTask motorTask){

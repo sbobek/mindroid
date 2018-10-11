@@ -32,6 +32,7 @@ import geist.re.mindlib.hardware.SoundSensor;
 import geist.re.mindlib.hardware.TouchSensor;
 import geist.re.mindlib.hardware.UltrasonicSensor;
 import geist.re.mindlib.tasks.MotorTask;
+import geist.re.mindlib.tasks.PlaySoundTask;
 import geist.re.mindlib.tasks.RobotQueryTask;
 
 
@@ -94,6 +95,9 @@ public class RobotService extends Service {
 
     }
 
+    public void executePlaySound(PlaySoundTask pst){
+        return;
+    }
 
     public void executeMotorTask(MotorTask motorTask){
         addToQueryQueue(motorTask);
